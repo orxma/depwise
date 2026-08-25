@@ -348,10 +348,10 @@ func StartBot() {
 		return handleQuotaPrompt(c, b, "awaiting_quota_limit_admin", "Maximum devices for Admins")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_xray_public"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_xray_public", "Max VMess accounts for Public")
+		return handleQuotaPrompt(c, b, "awaiting_quota_xray_public", "Max Xray accounts for Public")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_xray_admin"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_xray_admin", "Max VMess accounts for Admins")
+		return handleQuotaPrompt(c, b, "awaiting_quota_xray_admin", "Max Xray accounts for Admins")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_ssh_public"}, func(c tele.Context) error {
 		return handleQuotaPrompt(c, b, "awaiting_quota_ssh_public", "Max SSH account limit (Public)")
@@ -406,6 +406,15 @@ func StartBot() {
 	b.Handle(&tele.Btn{Unique: "crear_xray"}, func(c tele.Context) error {
 		return handleCrearXray(c, b)
 	})
+	b.Handle(&tele.Btn{Unique: "xray_proto_vmess"}, func(c tele.Context) error {
+		return handleXrayProtoSelect(c, b, vpn.ProtoVMess)
+	})
+	b.Handle(&tele.Btn{Unique: "xray_proto_vless"}, func(c tele.Context) error {
+		return handleXrayProtoSelect(c, b, vpn.ProtoVLESS)
+	})
+	b.Handle(&tele.Btn{Unique: "xray_proto_trojan"}, func(c tele.Context) error {
+		return handleXrayProtoSelect(c, b, vpn.ProtoTrojan)
+	})
 	b.Handle(&tele.Btn{Unique: "ssh_rnd_pass"}, func(c tele.Context) error {
 		return handleRandomPass(c, b)
 	})
@@ -431,6 +440,9 @@ func StartBot() {
 		}
 		if err := vpn.EnsureXrayServiceResilience(); err != nil {
 			log.Printf("Warning: could not ensure Xray service resilience: %v", err)
+		}
+		if err := vpn.EnsureXrayProtocols(); err != nil {
+			log.Printf("Warning: could not ensure Xray protocols (VLESS/Trojan): %v", err)
 		}
 	}
 

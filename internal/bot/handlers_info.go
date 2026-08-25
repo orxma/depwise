@@ -196,11 +196,11 @@ func handleMenuEliminar(c tele.Context, b *tele.Bot) error {
 	res += i18n.T(chatID, "del.xray_section") + "\n"
 	for _, user := range data.XrayUsers {
 		if isSA || user.Owner == fmt.Sprintf("%d", chatID) {
+			res += fmt.Sprintf("👤 <code>%s</code> [%s]", user.Alias, protoLabel(user.Protocol))
 			if user.Handle != "" {
-				res += fmt.Sprintf("👤 <code>%s</code> (%s)\n", user.Alias, user.Handle)
-			} else {
-				res += fmt.Sprintf("👤 <code>%s</code>\n", user.Alias)
+				res += fmt.Sprintf(" (%s)", user.Handle)
 			}
+			res += "\n"
 			count++
 		}
 	}

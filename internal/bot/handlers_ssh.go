@@ -754,7 +754,7 @@ func processInfoCuenta(target string, chatID int64, c tele.Context, b *tele.Bot)
 				ownerID = user.Owner
 				if isSA || ownerID == fmt.Sprintf("%d", chatID) {
 					found = true
-					accType = "💎 VMess (Xray)"
+					accType = "💎 Xray (VMess/VLESS/Trojan)"
 					expire = user.Expire
 					details = fmt.Sprintf("👤 <b>Alias:</b> <code>%s</code>\n🆔 <b>UUID:</b> <code>%s</code>", user.Alias, uid)
 					break

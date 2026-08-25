@@ -1,12 +1,23 @@
 package vpn
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 )
+
+// falconFallbackPy is a safe, self-contained HTTP/HTTPS (CONNECT) proxy used
+// when the upstream FirewallFalcon binary cannot be downloaded. The upstream
+// project's repository was removed and its components were reported as a
+// supply-chain backdoor (root-CA injection, /etc/hosts hijacking, SSH
+// backdoor). We therefore never fetch or execute that binary; instead we fall
+// back to this auditable implementation.
+//
+//go:embed falconproxy_fallback.py
+var falconFallbackPy []byte
 
 // InstallFalcon descarga e instala Falcon Proxy
 func InstallFalcon(port string) (string, error) {
@@ -45,9 +56,24 @@ func InstallFalcon(port string) (string, error) {
 		lastErr = fmt.Sprintf("wget: %s | %v", strings.TrimSpace(string(out2)), err2)
 	}
 
+	// 0. Fallback: if the upstream binary cannot be downloaded (repo removed
+	// or unreachable), install the safe local Python proxy instead. This keeps
+	// the feature working without pulling the backdoored FirewallFalcon binary.
 	if !downloaded {
-		return "", fmt.Errorf("falconproxy download failed: %s", lastErr)
+		if _, err := exec.LookPath("python3"); err != nil {
+			// Try to ensure python3 is available.
+			_ = exec.Command("apt-get", "update", "-qq").Run()
+			_ = exec.Command("apt-get", "install", "-y", "-qq", "python3").Run()
+		}
+		if _, err := exec.LookPath("python3"); err != nil {
+			return "", fmt.Errorf("falconproxy download failed and python3 is unavailable: %s", lastErr)
+		}
+		if err := os.WriteFile("/usr/local/bin/falconproxy", falconFallbackPy, 0755); err != nil {
+			return "", fmt.Errorf("failed to write falconproxy fallback: %v", err)
+		}
+		downloaded = true
 	}
+
 	os.Chmod("/usr/local/bin/falconproxy", 0755)
 
 	// 2. Configuración

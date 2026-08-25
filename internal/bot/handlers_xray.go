@@ -10,7 +10,6 @@ import (
 	"github.com/orxma/depwise/internal/db"
 	"github.com/orxma/depwise/internal/i18n"
 	"github.com/orxma/depwise/internal/vpn"
-	"github.com/google/uuid"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -79,7 +78,7 @@ func handleManageXrayUsers(c tele.Context, b *tele.Bot) error {
 	for uid, user := range data.XrayUsers {
 		ownerID, _ := strconv.ParseInt(user.Owner, 10, 64)
 		if isFullAdmin(chatID) || ownerID == chatID {
-			label := fmt.Sprintf("👤 %s (%s)", user.Alias, user.Expire)
+			label := fmt.Sprintf("👤 %s (%s) [%s]", user.Alias, user.Expire, protoLabel(user.Protocol))
 			res += fmt.Sprintf("• %s\n<code>%s</code>\n", label, uid)
 			if isFullAdmin(chatID) {
 				res += i18n.Tf(chatID, "info.owner_label", user.Owner)
@@ -158,19 +157,28 @@ func processXraySteps(step string, text string, chatID int64, c tele.Context, b 
 		}
 
 		SetTempValue(chatID, "xray_alias", alias)
+		SetUserStep(chatID, "awaiting_xray_protocol")
+		return showXrayProtocolButtons(chatID, b, lastMsg)
+
+	case "awaiting_xray_protocol":
+		protocol := normalizeProtocol(text)
+		if protocol == "" {
+			_, err := SafeEdit(chatID, b, lastMsg, i18n.T(chatID, "xray.proto_invalid"), markupCancel)
+			return err
+		}
+		SetTempValue(chatID, "xray_protocol", protocol)
 
 		if isFullAdmin(chatID) {
 			SetUserStep(chatID, "awaiting_xray_days")
-			_, err := SafeEdit(chatID, b, lastMsg, i18n.Tf(chatID, "xray.alias_saved", html.EscapeString(alias)), markupCancel)
+			_, err := SafeEdit(chatID, b, lastMsg, i18n.Tf(chatID, "xray.alias_saved", html.EscapeString(GetTempValue(chatID, "xray_alias"))), markupCancel)
 			return err
 		}
-
-		data, _ = db.Load()
+		data, _ := db.Load()
 		days := data.GetMaxDaysPublic()
 		if isAdmin(chatID) {
 			days = data.GetMaxDaysAdmin()
 		}
-		return finishXrayCreation(c, b, chatID, lastMsg, alias, days)
+		return finishXrayCreation(c, b, chatID, lastMsg, GetTempValue(chatID, "xray_alias"), days)
 
 	case "awaiting_xray_days":
 		days, err := strconv.Atoi(strings.TrimSpace(text))
@@ -188,11 +196,15 @@ func finishXrayCreation(c tele.Context, b *tele.Bot, chatID int64, lastMsg *tele
 	DeleteUserStep(chatID)
 	SafeEdit(chatID, b, lastMsg, i18n.T(chatID, "xray.generating"), nil)
 
-	newUUID := uuid.New().String()
+	protocol := GetTempValue(chatID, "xray_protocol")
+	if protocol == "" {
+		protocol = vpn.ProtoVMess
+	}
+	credential := vpn.GenCredential(protocol)
 	expireDate := time.Now().AddDate(0, 0, days).Format("2006-01-02")
 
 	// 1. Agregar al sistema core
-	err := vpn.AddXrayUser(newUUID, alias)
+	err := vpn.AddXrayUser(protocol, credential, alias)
 	if err != nil {
 		markup := &tele.ReplyMarkup{}
 		markup.Inline(markup.Row(markup.Data(i18n.T(chatID, "btn.back"), "submenu_xray")))
@@ -209,19 +221,31 @@ func finishXrayCreation(c tele.Context, b *tele.Bot, chatID int64, lastMsg *tele
 		if c.Sender() != nil && c.Sender().Username != "" {
 			handle = "@" + c.Sender().Username
 		}
-		data.XrayUsers[newUUID] = db.XrayUser{
-			Alias:  alias,
-			Expire: expireDate,
-			Owner:  fmt.Sprintf("%d", chatID),
-			Handle: handle,
+		data.XrayUsers[credential] = db.XrayUser{
+			Alias:    alias,
+			Expire:   expireDate,
+			Owner:    fmt.Sprintf("%d", chatID),
+			Handle:   handle,
+			Protocol: protocol,
 		}
 		return nil
 	})
 
 	data, _ := db.Load()
-	vmessLink := vpn.GenerateVmessLink(alias, newUUID, data.CloudflareDomain)
+	domain := data.CloudflareDomain
 
-	res := i18n.Tf(chatID, "xray.created", alias, expireDate, data.CloudflareDomain, vmessLink)
+	var link string
+	switch protocol {
+	case vpn.ProtoVLESS:
+		link = vpn.GenerateVlessLink(alias, credential, domain)
+	case vpn.ProtoTrojan:
+		link = vpn.GenerateTrojanLink(alias, credential, domain)
+	default:
+		link = vpn.GenerateVmessLink(alias, credential, domain)
+	}
+
+	label := protoLabel(protocol)
+	res := i18n.Tf(chatID, "xray.created", label, alias, expireDate, domain, label, link)
 
 	if isFullAdmin(chatID) {
 		res += i18n.Tf(chatID, "info.owner_label", fmt.Sprintf("%d", chatID))
@@ -229,11 +253,87 @@ func finishXrayCreation(c tele.Context, b *tele.Bot, chatID int64, lastMsg *tele
 
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data(i18n.T(chatID, "btn.back"), "back_main")))
-	
+
 	processReferralReward(chatID, b)
-	
+
 	_, err = SafeEdit(chatID, b, lastMsg, res, markup)
 	return err
+}
+
+// normalizeProtocol convierte la respuesta del usuario en un protocolo válido.
+func normalizeProtocol(text string) string {
+	t := strings.ToLower(strings.TrimSpace(text))
+	switch t {
+	case "1", "vmess", "vmes":
+		return vpn.ProtoVMess
+	case "2", "vless":
+		return vpn.ProtoVLESS
+	case "3", "trojan", "trojan-ws":
+		return vpn.ProtoTrojan
+	}
+	return ""
+}
+
+// protoLabel devuelve la etiqueta legible de un protocolo.
+func protoLabel(p string) string {
+	switch p {
+	case vpn.ProtoVLESS:
+		return "VLESS"
+	case vpn.ProtoTrojan:
+		return "Trojan"
+	default:
+		return "VMess"
+	}
+}
+
+// showXrayProtocolButtons muestra botones para elegir el protocolo (VMess/VLESS/Trojan).
+func showXrayProtocolButtons(chatID int64, b *tele.Bot, lastMsg *tele.Message) error {
+	markup := &tele.ReplyMarkup{}
+	markup.Inline(
+		markup.Row(
+			markup.Data("1️⃣ VMess", "xray_proto_vmess"),
+			markup.Data("2️⃣ VLESS", "xray_proto_vless"),
+		),
+		markup.Row(
+			markup.Data("3️⃣ Trojan", "xray_proto_trojan"),
+		),
+		markup.Row(
+			markup.Data(i18n.T(chatID, "btn.cancel"), "cancelar_accion"),
+		),
+	)
+	_, err := SafeEdit(chatID, b, lastMsg, i18n.T(chatID, "xray.proto_prompt"), markup)
+	return err
+}
+
+// handleXrayProtoSelect maneja la selección de protocolo vía botón.
+func handleXrayProtoSelect(c tele.Context, b *tele.Bot, protocol string) error {
+	chatID := c.Chat().ID
+	_ = c.Respond(&tele.CallbackResponse{})
+
+	proto := strings.TrimPrefix(protocol, "xray_proto_")
+	SetTempValue(chatID, "xray_protocol", proto)
+
+	alias := GetTempValue(chatID, "xray_alias")
+	if alias == "" {
+		alias = "user"
+	}
+
+	if isFullAdmin(chatID) {
+		SetUserStep(chatID, "awaiting_xray_days")
+		lastMsg := GetLastBotMsg(chatID)
+		markup := &tele.ReplyMarkup{}
+		markup.Inline(markup.Row(markup.Data(i18n.T(chatID, "btn.cancel"), "cancelar_accion")))
+		_, err := SafeEdit(chatID, b, lastMsg, i18n.Tf(chatID, "xray.alias_saved", html.EscapeString(alias)), markup)
+		return err
+	}
+
+	data, _ := db.Load()
+	days := data.GetMaxDaysPublic()
+	if isAdmin(chatID) {
+		days = data.GetMaxDaysAdmin()
+	}
+	lastMsg := GetLastBotMsg(chatID)
+	return finishXrayCreation(c, b, chatID, lastMsg, alias, days)
 }
 
 func handleDeleteXrayExec(c tele.Context, b *tele.Bot) error {

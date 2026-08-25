@@ -88,9 +88,9 @@ frontend ssl_frontend
     acl acl_path_ssh path_reg -i ^\/fightertunnelssh.*
 
     use_backend grpc_backend if acl_http2
-    use_backend payload_backend if acl_path_vless
-    use_backend payload_backend if acl_path_vmess
-    use_backend payload_backend if acl_path_trojan
+    use_backend vless_backend if acl_path_vless
+    use_backend vmess_backend if acl_path_vmess
+    use_backend trojan_backend if acl_path_trojan
     use_backend payload_backend if acl_path_grpc
     use_backend ssh_backend if acl_path_ssh
     use_backend websocket_backend if acl_upgrade acl_websocket
@@ -114,6 +114,18 @@ backend ssh_ws_default_backend
 backend bot_ftvpn_backend
     mode tcp
     server ssh_direct 127.0.0.1:22 check
+
+backend vmess_backend
+    mode tcp
+    server vmess_server 127.0.0.1:10002 check
+
+backend vless_backend
+    mode tcp
+    server vless_server 127.0.0.1:10012 check
+
+backend trojan_backend
+    mode tcp
+    server trojan_server 127.0.0.1:10013 check
 
 backend payload_backend
     mode tcp
@@ -341,6 +353,65 @@ ExecStartPre=/bin/mkdir -p /run/haproxy
 	exec.Command("systemctl", "daemon-reload").Run()
 }
 
+// upgradeHAProxyXrayRouting actualiza una configuración HAProxy existente para
+// enrutar VLESS (/vless) y Trojan (/trojan-ws) hacia backends dedicados, sin
+// reescribir toda la configuración (preservando puertos personalizados, cert y
+// demás backends). Es idempotente: si ya existe vless_backend, no hace nada.
+func upgradeHAProxyXrayRouting() error {
+	configFile := "/etc/haproxy/haproxy.cfg"
+	raw, err := os.ReadFile(configFile)
+	if err != nil {
+		return err
+	}
+	cfg := string(raw)
+	if strings.Contains(cfg, "vless_backend") {
+		return nil // ya actualizado
+	}
+
+	// 1. Reescribir las reglas de enrutamiento por path.
+	oldRouting := `    use_backend grpc_backend if acl_http2
+    use_backend payload_backend if acl_path_vless
+    use_backend payload_backend if acl_path_vmess
+    use_backend payload_backend if acl_path_trojan
+    use_backend payload_backend if acl_path_grpc`
+	newRouting := `    use_backend grpc_backend if acl_http2
+    use_backend vless_backend if acl_path_vless
+    use_backend vmess_backend if acl_path_vmess
+    use_backend trojan_backend if acl_path_trojan
+    use_backend payload_backend if acl_path_grpc`
+	if !strings.Contains(cfg, oldRouting) {
+		return fmt.Errorf("could not locate HAProxy routing block to upgrade")
+	}
+	cfg = strings.ReplaceAll(cfg, oldRouting, newRouting)
+
+	// 2. Insertar los backends dedicados antes de payload_backend.
+	backends := `
+backend vmess_backend
+    mode tcp
+    server vmess_server 127.0.0.1:10002 check
+
+backend vless_backend
+    mode tcp
+    server vless_server 127.0.0.1:10012 check
+
+backend trojan_backend
+    mode tcp
+    server trojan_server 127.0.0.1:10013 check
+
+`
+	cfg = strings.Replace(cfg, "backend payload_backend\n", backends+"backend payload_backend\n", 1)
+
+	if out, err := exec.Command("haproxy", "-c", "-f", configFile).CombinedOutput(); err != nil {
+		return fmt.Errorf("invalid upgraded haproxy config: %s", string(out))
+	}
+
+	if err := os.WriteFile(configFile, []byte(cfg), 0644); err != nil {
+		return err
+	}
+	exec.Command("systemctl", "restart", "haproxy").Run()
+	return nil
+}
+
 // EnsureHAProxyRunning verifica que HAProxy y ssh-ws-internal estén corriendo.
 // Se llama al iniciar el bot para recuperar servicios caídos tras un reboot.
 // Pasos:
@@ -378,6 +449,9 @@ func EnsureHAProxyRunning() {
 
 	// 4. Verificar si HAProxy ya está activo
 	if exec.Command("systemctl", "is-active", "--quiet", "haproxy").Run() == nil {
+		// Even if running, ensure the config routes VLESS/Trojan to their
+		// dedicated Xray backends (upgrade from older single-protocol configs).
+		_ = upgradeHAProxyXrayRouting()
 		return // Already running correctly
 	}
 

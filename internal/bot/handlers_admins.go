@@ -91,8 +91,8 @@ func handleMenuAdmins(c tele.Context, b *tele.Bot) error {
 	texto += fmt.Sprintf("👥 <b>Historial:</b> %d IDs\n", len(data.UserHistory))
 	texto += fmt.Sprintf("📊 <b>Public Quotas:</b> %d days / %d devices\n", data.GetMaxDaysPublic(), data.GetMaxLimitPublic())
 	texto += fmt.Sprintf("📊 <b>Admin Quotas:</b> %d days / %d devices\n", data.GetMaxDaysAdmin(), data.GetMaxLimitAdmin())
-	texto += fmt.Sprintf("💎 <b>VMess Public:</b> %d accounts max\n", data.GetMaxXrayPublic())
-	texto += fmt.Sprintf("💎 <b>VMess Admin:</b> %d accounts max\n", data.GetMaxXrayAdmin())
+	texto += fmt.Sprintf("💎 <b>Xray Public:</b> %d accounts max\n", data.GetMaxXrayPublic())
+	texto += fmt.Sprintf("💎 <b>Xray Admin:</b> %d accounts max\n", data.GetMaxXrayAdmin())
 	texto += "━━━━━━━━━━━━━━\n"
 	texto += "<i>Select an advanced option:</i>"
 
@@ -127,8 +127,8 @@ func handleEditQuotas(c tele.Context, b *tele.Bot) error {
 	btnSSHAdmin := markup.Data(fmt.Sprintf("👤 Max SSH Admin: %d", data.GetMaxSSHAdmin()), "quota_ssh_admin")
 	btnZivpnPublic := markup.Data(fmt.Sprintf("🛰️ Max ZiVPN Public: %d", data.GetMaxZivpnPublic()), "quota_zivpn_public")
 	btnZivpnAdmin := markup.Data(fmt.Sprintf("🛰️ Max ZiVPN Admin: %d", data.GetMaxZivpnAdmin()), "quota_zivpn_admin")
-	btnXrayPub := markup.Data(fmt.Sprintf("💎 VMess Public: %d", data.GetMaxXrayPublic()), "quota_xray_public")
-	btnXrayAdm := markup.Data(fmt.Sprintf("💎 VMess Admin: %d", data.GetMaxXrayAdmin()), "quota_xray_admin")
+	btnXrayPub := markup.Data(fmt.Sprintf("💎 Xray Public: %d", data.GetMaxXrayPublic()), "quota_xray_public")
+	btnXrayAdm := markup.Data(fmt.Sprintf("💎 Xray Admin: %d", data.GetMaxXrayAdmin()), "quota_xray_admin")
 	btnBack := markup.Data("🔙 Back", "menu_admins")
 
 	markup.Inline(
@@ -151,10 +151,10 @@ func handleEditQuotas(c tele.Context, b *tele.Bot) error {
 	texto += fmt.Sprintf("🛰️ <b>Max ZiVPN Accounts Public:</b> max %d\n", data.GetMaxZivpnPublic())
 	texto += fmt.Sprintf("🛰️ <b>Max ZiVPN Accounts Admin:</b> max %d\n", data.GetMaxZivpnAdmin())
 	texto += "━━━━━━━━━━━━━━\n"
-	texto += fmt.Sprintf("💎 <b>VMess Public:</b> max %d accounts\n", data.GetMaxXrayPublic())
-	texto += fmt.Sprintf("💎 <b>VMess Admin:</b> max %d accounts\n", data.GetMaxXrayAdmin())
+	texto += fmt.Sprintf("💎 <b>Xray Public:</b> max %d accounts\n", data.GetMaxXrayPublic())
+	texto += fmt.Sprintf("💎 <b>Xray Admin:</b> max %d accounts\n", data.GetMaxXrayAdmin())
 	texto += "━━━━━━━━━━━━━━\n"
-	texto += "<i>These values apply when creating SSH, ZiVPN and VMess users.\nThe SuperAdmin has no limits.</i>"
+	texto += "<i>These values apply when creating SSH, ZiVPN and Xray users.\nThe SuperAdmin has no limits.</i>"
 
 	return SafeEditCtx(c, b, texto, markup)
 }

@@ -2,20 +2,66 @@ package vpn
 
 import (
 	"bufio"
+	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const xrayConfigPath = "/usr/local/etc/xray/config.json"
 const xrayAccessLog = "/var/log/xray/access.log"
 
+// Xray protocol definitions. Each protocol listens on its own local port and is
+// exposed to clients through HAProxy (TLS termination) on port 443/80 using a
+// distinct WebSocket path.
+const (
+	ProtoVMess = "vmess"
+	ProtoVLESS = "vless"
+	ProtoTrojan = "trojan"
+
+	vmessPort = 10002
+	vlessPort = 10012
+	trojanPort = 10013
+
+	vmessPath = "/vmess"
+	vlessPath = "/vless"
+	trojanPath = "/trojan-ws"
+)
+
+// protocolPort devuelve el puerto local y la ruta WS para un protocolo.
+func protocolPort(proto string) (int, string) {
+	switch proto {
+	case ProtoVLESS:
+		return vlessPort, vlessPath
+	case ProtoTrojan:
+		return trojanPort, trojanPath
+	default: // vmess
+		return vmessPort, vmessPath
+	}
+}
+
+func protocolLabel(proto string) string {
+	switch proto {
+	case ProtoVLESS:
+		return "VLESS"
+	case ProtoTrojan:
+		return "Trojan"
+	default:
+		return "VMess"
+	}
+}
+
 // InstallXray instala el núcleo de Xray y configura el archivo JSON inicial
+// con los tres protocolos (VMess, VLESS y Trojan) sobre WebSocket.
 func InstallXray() error {
 	// 1. Descargar e instalar Xray desde el script oficial de GitHub
 	cmd := exec.Command("bash", "-c", "bash -c \"$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)\" @ install")
@@ -25,8 +71,7 @@ func InstallXray() error {
 		return fmt.Errorf("xray core installation failed: %v", err)
 	}
 
-	// 2. Crear configuración base de VMess WS
-	// Asegurar que el directorio de logs exista
+	// 2. Crear configuración base con los tres protocolos
 	os.MkdirAll(filepath.Dir(xrayAccessLog), 0755)
 
 	baseConfig := map[string]interface{}{
@@ -35,24 +80,9 @@ func InstallXray() error {
 			"access":   xrayAccessLog,
 		},
 		"inbounds": []map[string]interface{}{
-			{
-				"port":     10002, // Puerto local fijo para enlazar con HAProxy
-				"listen":   "127.0.0.1",
-				"protocol": "vmess",
-				"settings": map[string]interface{}{
-					"clients": []map[string]interface{}{},
-				},
-				"streamSettings": map[string]interface{}{
-					"network": "ws",
-					"wsSettings": map[string]interface{}{
-						"path": "/vmess",
-					},
-				},
-				"sniffing": map[string]interface{}{
-					"enabled": true,
-					"destOverride": []string{"http", "tls"},
-				},
-			},
+			makeInbound(ProtoVMess),
+			makeInbound(ProtoVLESS),
+			makeInbound(ProtoTrojan),
 		},
 		"outbounds": []map[string]interface{}{
 			{
@@ -75,12 +105,55 @@ func InstallXray() error {
 		return fmt.Errorf("error escribiendo config.json de xray: %v", err)
 	}
 
-	// Aplicar resiliencia del servicio (auto-restart y fix de OOM/Reboot)
+	// 3. Asegurar que los tres inbounds existan (idempotente)
+	if err := EnsureXrayProtocols(); err != nil {
+		return fmt.Errorf("error asegurando protocolos xray: %v", err)
+	}
+
+	// 4. Aplicar resiliencia del servicio (auto-restart y fix de OOM/Reboot)
 	if err := EnsureXrayServiceResilience(); err != nil {
 		return fmt.Errorf("error aplicando resiliencia a xray: %v", err)
 	}
 
 	return nil
+}
+
+// makeInbound construye la definición de un inbound Xray para el protocolo dado.
+func makeInbound(proto string) map[string]interface{} {
+	_, wsPath := protocolPort(proto)
+	inbound := map[string]interface{}{
+		"listen":   "127.0.0.1",
+		"protocol": proto,
+		"settings": map[string]interface{}{
+			"clients": []map[string]interface{}{},
+		},
+		"streamSettings": map[string]interface{}{
+			"network": "ws",
+			"wsSettings": map[string]interface{}{
+				"path": wsPath,
+			},
+		},
+		"sniffing": map[string]interface{}{
+			"enabled":      true,
+			"destOverride": []string{"http", "tls"},
+		},
+	}
+	switch proto {
+	case ProtoVMess:
+		inbound["port"] = vmessPort
+	case ProtoVLESS:
+		inbound["port"] = vlessPort
+		inbound["settings"] = map[string]interface{}{
+			"clients":    []map[string]interface{}{},
+			"decryption": "none",
+		}
+	case ProtoTrojan:
+		inbound["port"] = trojanPort
+		inbound["settings"] = map[string]interface{}{
+			"clients": []map[string]interface{}{},
+		}
+	}
+	return inbound
 }
 
 // RemoveXray detiene y borra el núcleo
@@ -93,8 +166,7 @@ func RemoveXray() error {
 }
 
 // EnsureXrayAccessLog verifica que el access log esté habilitado en la config
-// existente. Si no lo está, lo agrega y reinicia Xray. Útil para instalaciones
-// anteriores a esta funcionalidad.
+// existente. Si no lo está, lo agrega y reinicia Xray.
 func EnsureXrayAccessLog() error {
 	cfg, err := loadXrayConfig()
 	if err != nil {
@@ -107,12 +179,10 @@ func EnsureXrayAccessLog() error {
 		cfg["log"] = logSection
 	}
 
-	// Si ya tiene el access log configurado, no hacer nada
 	if existing, ok := logSection["access"].(string); ok && existing != "" {
 		return nil
 	}
 
-	// Asegurar directorio de logs
 	os.MkdirAll(filepath.Dir(xrayAccessLog), 0755)
 
 	logSection["access"] = xrayAccessLog
@@ -121,13 +191,50 @@ func EnsureXrayAccessLog() error {
 	return saveXrayConfig(cfg)
 }
 
+// EnsureXrayProtocols asegura que los tres inbounds (VMess, VLESS, Trojan)
+// existan en la configuración actual de Xray. Si falta alguno, lo agrega.
+// Es idempotente y seguro de llamar en cada arranque del bot.
+func EnsureXrayProtocols() error {
+	cfg, err := loadXrayConfig()
+	if err != nil {
+		return err
+	}
+
+	inboundsRaw, ok := cfg["inbounds"].([]interface{})
+	if !ok {
+		inboundsRaw = []interface{}{}
+	}
+
+	present := map[string]bool{}
+	for _, inb := range inboundsRaw {
+		if m, ok := inb.(map[string]interface{}); ok {
+			if p, ok := m["protocol"].(string); ok {
+				present[p] = true
+			}
+		}
+	}
+
+	changed := false
+	for _, proto := range []string{ProtoVMess, ProtoVLESS, ProtoTrojan} {
+		if !present[proto] {
+			inboundsRaw = append(inboundsRaw, makeInbound(proto))
+			changed = true
+		}
+	}
+
+	if changed {
+		cfg["inbounds"] = inboundsRaw
+		return saveXrayConfig(cfg)
+	}
+	return nil
+}
+
 // EnsureXrayServiceResilience asegura que el demonio de Xray se reinicie automáticamente
 // en caso de fallo (ej. OOM kill o saturación) y que espere a la red al reiniciar el VPS.
 func EnsureXrayServiceResilience() error {
 	dir := "/etc/systemd/system/xray.service.d"
 	overridePath := filepath.Join(dir, "10-resilience.conf")
 
-	// Si ya existe, asumimos que está configurado
 	if _, err := os.Stat(overridePath); err == nil {
 		return nil
 	}
@@ -176,71 +283,121 @@ func saveXrayConfig(data map[string]interface{}) error {
 	if err := os.WriteFile(xrayConfigPath, raw, 0644); err != nil {
 		return err
 	}
-	// Reinicio silencioso
-	return exec.Command("systemctl", "restart", "xray").Run()
+	// Reinicio silencioso. Si se alcanza el límite de arranques de systemd
+	// (p.ej. cambios muy rápidos), reseteamos y forzamos el arranque.
+	if err := exec.Command("systemctl", "restart", "xray").Run(); err != nil {
+		exec.Command("systemctl", "reset-failed", "xray").Run()
+		return exec.Command("systemctl", "start", "xray").Run()
+	}
+	return nil
 }
 
-// AddXrayUser inyecta el nuevo usuario VMess al archivo y reinicia el core
-func AddXrayUser(uuid, email string) error {
+// AddXrayUser inyecta un nuevo cliente al inbound correspondiente al protocolo.
+// Para VMess/VLESS el "credential" es el UUID; para Trojan es la contraseña.
+func AddXrayUser(protocol, credential, email string) error {
 	cfg, err := loadXrayConfig()
 	if err != nil {
 		return err
 	}
 
-	inbounds, ok := cfg["inbounds"].([]interface{})
-	if !ok || len(inbounds) == 0 {
+	inboundsRaw, ok := cfg["inbounds"].([]interface{})
+	if !ok || len(inboundsRaw) == 0 {
 		return fmt.Errorf("invalid inbounds format in config.json")
 	}
 
-	inbound0 := inbounds[0].(map[string]interface{})
-	settings := inbound0["settings"].(map[string]interface{})
-	
-	var clients []interface{}
-	if settings["clients"] != nil {
-		clients = settings["clients"].([]interface{})
+	targetProto := protocol
+	if targetProto == "" {
+		targetProto = ProtoVMess
 	}
 
-	newUser := map[string]interface{}{
-		"id":    uuid,
-		"level": 0,
-		"email": email, // Guardamos el alias o chatid para identificarlo
-	}
-	clients = append(clients, newUser)
-	settings["clients"] = clients
+	for _, inb := range inboundsRaw {
+		inbound, ok := inb.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if inbound["protocol"] != targetProto {
+			continue
+		}
 
-	return saveXrayConfig(cfg)
+		settings, ok := inbound["settings"].(map[string]interface{})
+		if !ok {
+			settings = map[string]interface{}{}
+			inbound["settings"] = settings
+		}
+
+		var clients []interface{}
+		if settings["clients"] != nil {
+			clients, _ = settings["clients"].([]interface{})
+		}
+
+		newClient := map[string]interface{}{
+			"level": 0,
+			"email": email,
+		}
+		if targetProto == ProtoTrojan {
+			newClient["password"] = credential
+		} else {
+			newClient["id"] = credential
+		}
+		clients = append(clients, newClient)
+		settings["clients"] = clients
+
+		return saveXrayConfig(cfg)
+	}
+
+	return fmt.Errorf("inbound for protocol %s not found", targetProto)
 }
 
-// RemoveXrayUser busca el UUID y lo elimina de la lista de clientes.
-func RemoveXrayUser(uuid string) error {
+// RemoveXrayUser busca el credential (UUID o password) en todos los inbounds y
+// lo elimina.
+func RemoveXrayUser(credential string) error {
 	cfg, err := loadXrayConfig()
 	if err != nil {
 		return err
 	}
 
-	inbounds, ok := cfg["inbounds"].([]interface{})
-	if !ok || len(inbounds) == 0 {
+	inboundsRaw, ok := cfg["inbounds"].([]interface{})
+	if !ok || len(inboundsRaw) == 0 {
 		return fmt.Errorf("invalid inbounds format in config.json")
 	}
 
-	inbound0 := inbounds[0].(map[string]interface{})
-	settings := inbound0["settings"].(map[string]interface{})
-	
-	if settings["clients"] == nil {
-		return nil // no hay clientes
-	}
-	clients := settings["clients"].([]interface{})
+	changed := false
+	for _, inb := range inboundsRaw {
+		inbound, ok := inb.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		settings, ok := inbound["settings"].(map[string]interface{})
+		if !ok || settings["clients"] == nil {
+			continue
+		}
+		clients, ok := settings["clients"].([]interface{})
+		if !ok {
+			continue
+		}
 
-	var newClients []interface{}
-	for _, c := range clients {
-		clientMap := c.(map[string]interface{})
-		if clientMap["id"] != uuid {
+		var newClients []interface{}
+		for _, c := range clients {
+			clientMap, ok := c.(map[string]interface{})
+			if !ok {
+				newClients = append(newClients, c)
+				continue
+			}
+			id, _ := clientMap["id"].(string)
+			pw, _ := clientMap["password"].(string)
+			if id == credential || pw == credential {
+				changed = true
+				continue
+			}
 			newClients = append(newClients, c)
 		}
+		settings["clients"] = newClients
 	}
-	settings["clients"] = newClients
 
-	return saveXrayConfig(cfg)
+	if changed {
+		return saveXrayConfig(cfg)
+	}
+	return nil
 }
 
 // GenerateVmessLink crea el texto base64 para importar el perfil en v2rayNG / HTTP Custom
@@ -249,27 +406,61 @@ func GenerateVmessLink(alias, uuid, domain string) string {
 		"v":    "2",
 		"ps":   alias,
 		"add":  domain,
-		"port": "443", // Puerto SSL Tunnel (HAProxy)
+		"port": "443",
 		"id":   uuid,
 		"aid":  "0",
 		"scy":  "auto",
 		"net":  "ws",
 		"type": "none",
 		"host": domain,
-		"path": "/vmess",
+		"path": vmessPath,
 		"tls":  "tls",
 		"sni":  domain,
 		"alpn": "",
 	}
-	
+
 	raw, _ := json.Marshal(vmessObj)
 	encoded := base64.StdEncoding.EncodeToString(raw)
 	return "vmess://" + encoded
 }
 
-// GetXrayOnlineUsers retorna los emails de usuarios VMess activos en los últimos 60 segundos
+// GenerateVlessLink crea el enlace vless:// para clientes V2RayNG / v2rayN.
+func GenerateVlessLink(alias, uuid, domain string) string {
+	q := url.Values{}
+	q.Set("type", "ws")
+	q.Set("security", "tls")
+	q.Set("path", vlessPath)
+	q.Set("sni", domain)
+	return fmt.Sprintf("vless://%s@%s:443?%s#%s", uuid, domain, q.Encode(), url.QueryEscape(alias))
+}
+
+// GenerateTrojanLink crea el enlace trojan:// para clientes compatibles.
+func GenerateTrojanLink(alias, password, domain string) string {
+	q := url.Values{}
+	q.Set("type", "ws")
+	q.Set("security", "tls")
+	q.Set("path", trojanPath)
+	q.Set("sni", domain)
+	return fmt.Sprintf("trojan://%s@%s:443?%s#%s", password, domain, q.Encode(), url.QueryEscape(alias))
+}
+
+// GenCredential genera el identificador adecuado para un protocolo:
+// UUID para VMess/VLESS, contraseña aleatoria para Trojan.
+func GenCredential(protocol string) string {
+	if protocol == ProtoTrojan {
+		return randHex(24)
+	}
+	return uuid.New().String()
+}
+
+func randHex(n int) string {
+	b := make([]byte, n/2)
+	rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
+// GetXrayOnlineUsers retorna los emails de usuarios activos en los últimos 60 segundos
 // leyendo el access log de Xray.
-// Formato de log: 2026/04/06 18:30:00 1.2.3.4:12345 accepted tcp:8.8.8.8:443 [vmess >> direct] email: user@alias
 func GetXrayOnlineUsers() []string {
 	file, err := os.Open(xrayAccessLog)
 	if err != nil {
@@ -284,13 +475,11 @@ func GetXrayOnlineUsers() []string {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		// Buscar "email:" en la línea
 		emailIdx := strings.Index(line, "email: ")
 		if emailIdx == -1 {
 			continue
 		}
 
-		// Parsear timestamp al inicio de la línea (formato: 2026/04/06 18:30:00)
 		if len(line) < 19 {
 			continue
 		}

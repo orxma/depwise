@@ -34,7 +34,7 @@ func handleMenuProtocols(c tele.Context, b *tele.Bot) error {
 	btnFalcon := markup.Data("🦅 Falcon", "submenu_falcon")
 	btnSSL := markup.Data("📜 WS TLS HTTP", "submenu_ssl")
 	btnDropbear := markup.Data("🐻 Dropbear", "submenu_dropbear")
-	btnXray := markup.Data("💎 Xray (VMess)", "submenu_xray")
+	btnXray := markup.Data("💎 Xray", "submenu_xray")
 	btnScanner := markup.Data("🔍 Escaner", "submenu_scanner")
 	btnCancel := markup.Data("🔙 Back", "back_main")
 
@@ -204,7 +204,7 @@ func handleSubMenuSSL(c tele.Context, b *tele.Bot) error {
 		markup.Row(markup.Data("🗑️ Desinstalar", "uninstall_ssl")),
 		markup.Row(markup.Data("🔙 Back", "menu_protocols")),
 	)
-	texto := fmt.Sprintf("📜 <b>SSL Tunnel (HAProxy) Management</b>\n\n📊 <b>Status:</b> %s\n\n⚙️ Installs multi-protocol HAProxy on ports 443, 80, 8080\n🎮 <b>Required for gaming</b> (routes WebSocket → SSH → BadVPN)\n\nWhat would you like to do?", status)
+	texto := fmt.Sprintf("📜 <b>SSL Tunnel (HAProxy) Management</b>\n\n📊 <b>Status:</b> %s\n\n⚙️ Installs multi-protocol HAProxy on ports 443, 80, 8080\n🎮 <b>Recommended for gaming</b> (with optional BadVPN UDPGW)\n\nWhat would you like to do?", status)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -258,6 +258,10 @@ func handleUninstallProtocol(c tele.Context, b *tele.Bot, proto string) error {
 	case "ZiVPN":
 		err = vpn.RemoveZiVPN()
 		data.Zivpn = false
+		data.ZivpnUsers = make(map[string]string)
+		data.ZivpnOwners = make(map[string]string)
+		data.ZivpnHandles = make(map[string]string)
+		data.ZivpnLastActive = make(map[string]string)
 	case "BadVPN":
 		err = vpn.RemoveBadVPN()
 		data.BadVPN = false
@@ -423,13 +427,6 @@ func handleInstallFalcon(c tele.Context, b *tele.Bot, lastMsg *tele.Message) err
 
 func handleInstallSSL(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error {
 	data, _ := db.Load()
-	if !data.BadVPN {
-		markup := &tele.ReplyMarkup{}
-		markup.Inline(markup.Row(markup.Data("🔙 Back", "submenu_ssl")))
-		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>HAProxy (SSL Tunnel)</b> without <b>BadVPN</b> installed first. HAProxy relies on BadVPN to forward online gaming traffic correctly.\n\nPlease install BadVPN first.", markup, tele.ModeHTML)
-		return nil
-	}
-
 	chatID := c.Chat().ID
 	delete(UserSteps, chatID)
 
@@ -451,8 +448,8 @@ func handleInstallSSL(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error 
 	res += "🔓 <b>HTTP/WS:</b>  <code>" + ip + ":80</code>\n"
 	res += "🔓 <b>Alt:</b>      <code>" + ip + ":8080</code>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "🎮 <b>For Gaming:</b> BadVPN UDPGW = <code>7300</code>\n"
-	res += "<i>Traffic flows: App → HAProxy(443) → SSH-WS(10015) → SSH → BadVPN → Internet</i>"
+	res += "🎮 <b>For Gaming (optional):</b> install BadVPN (UDPGW 7300) to tunnel UDP game traffic through HAProxy.\n"
+	res += "<i>Base traffic: App → HAProxy(443) → SSH-WS(10015) → SSH → Internet</i>"
 
 	data, _ = db.Load()
 	data.SSLTunnel = "443"
@@ -488,7 +485,7 @@ func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error
 			markup.Row(markup.Data("⚙️ Pro Settings", "menu_admins")),
 			markup.Row(markup.Data("🔙 Back", "submenu_xray")),
 		)
-		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>Xray</b> without first configuring a <b>Cloudflare Domain</b> in <i>Pro Settings</i> of the admin menu.\n\nThe VMess WebSocket protocol requires a domain to generate connection links.", markup, tele.ModeHTML)
+		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>Xray</b> without first configuring a <b>Cloudflare Domain</b> in <i>Pro Settings</i> of the admin menu.\n\nThe Xray (VMess/VLESS/Trojan) protocols require a domain to generate connection links.", markup, tele.ModeHTML)
 		return nil
 	}
 
@@ -502,7 +499,7 @@ func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error
 		return nil
 	}
 
-	b.Edit(lastMsg, "⏳ <b>Installing Xray-core...</b>\n\n<i>Downloading the Xray core and configuring VMess over WebSocket on port 10002.\nThis may take a few seconds...</i>", tele.ModeHTML)
+	b.Edit(lastMsg, "⏳ <b>Installing Xray-core...</b>\n\n<i>Downloading the Xray core and configuring VMess, VLESS and Trojan over WebSocket.\nThis may take a few seconds...</i>", tele.ModeHTML)
 
 	err := vpn.InstallXray()
 	markup := &tele.ReplyMarkup{}
@@ -518,13 +515,13 @@ func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error
 	data.Xray.Port = 10002
 	db.Save(data)
 
-	res := "✅ <b>Xray (VMess) Installed Successfully</b>\n"
+	res := "✅ <b>Xray Installed Successfully</b>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "⚙️ <b>Protocolo:</b> <code>VMess + WebSocket</code>\n"
-	res += "⚙️ <b>Internal Port:</b> <code>10002</code>\n"
+	res += "⚙️ <b>Protocols:</b> <code>VMess / VLESS / Trojan (WebSocket)</code>\n"
+	res += "⚙️ <b>Internal Ports:</b> <code>10002 / 10012 / 10013</code>\n"
 	res += "🌍 <b>Domain:</b> <code>" + data.CloudflareDomain + "</code>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "<i>You can now start managing users from the Xray menu.</i>"
+	res += "<i>You can now create users and choose the protocol from the Xray menu.</i>"
 
 	b.Edit(lastMsg, res, markup, tele.ModeHTML)
 	return nil
@@ -792,10 +789,10 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 				label = fmt.Sprintf("Admin Devices → %d", val)
 			case "awaiting_quota_xray_public":
 				data.MaxXrayPublic = val
-				label = fmt.Sprintf("VMess Public → %d accounts", val)
+				label = fmt.Sprintf("Xray Public → %d accounts", val)
 			case "awaiting_quota_xray_admin":
 				data.MaxXrayAdmin = val
-				label = fmt.Sprintf("VMess Admin → %d accounts", val)
+				label = fmt.Sprintf("Xray Admin → %d accounts", val)
 			case "awaiting_quota_ssh_public":
 				data.MaxSSHPublic = val
 				label = fmt.Sprintf("SSH Limit Public → %d accounts", val)

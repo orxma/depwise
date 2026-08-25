@@ -81,10 +81,11 @@ type XrayConfig struct {
 }
 
 type XrayUser struct {
-	Alias  string `json:"alias"`
-	Expire string `json:"expire"` // YYYY-MM-DD
-	Owner  string `json:"owner"`  // Chat ID
-	Handle string `json:"handle"`
+	Alias    string `json:"alias"`
+	Expire   string `json:"expire"` // YYYY-MM-DD
+	Owner    string `json:"owner"`  // Chat ID
+	Handle   string `json:"handle"`
+	Protocol string `json:"protocol"` // vmess | vless | trojan (empty = vmess legacy)
 }
 
 type AdminInfo struct {
