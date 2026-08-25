@@ -24,7 +24,7 @@ const (
 // Compatible con HTTP Injector, HTTP Custom, HA Tunnel y apps VPN
 func GenerateUserBanner(username, title string, limit int, expireDate string, data *db.ConfigData) string {
 	if title == "" {
-		title = "INTERNET ILIMITADO"
+		title = "UNLIMITED INTERNET"
 	}
 
 	promoText := "🔥 PREMIUM SERVERS! 🔥"
@@ -37,12 +37,12 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 		promoChannel = data.BannerPromoChannel
 	}
 
-	promoSupport := "@orxtunnel"
+	promoSupport := "@aytou0"
 	if data != nil && data.BannerPromoSupport != "" {
 		promoSupport = data.BannerPromoSupport
 	}
 
-	promoBotName := "@orxtunnel_bot"
+	promoBotName := "@orxtunnelbot"
 	if data != nil && data.BannerPromoBotName != "" {
 		promoBotName = data.BannerPromoBotName
 	}
