@@ -13,7 +13,7 @@ func InstallDropbear(ports string) error {
 	// 1. Instalar dropbear
 	exec.Command("apt-get", "update").Run()
 	if err := exec.Command("apt-get", "install", "-y", "dropbear").Run(); err != nil {
-		return fmt.Errorf("fallo instalacion dropbear: %v", err)
+		return fmt.Errorf("dropbear installation failed: %v", err)
 	}
 
 	// 2. Asegurar llaves
@@ -26,7 +26,7 @@ func InstallDropbear(ports string) error {
 	}
 
 	// 3. Crear banner por defecto si no existe
-	bannerFile := "/etc/gerhanatunnel.txt"
+	bannerFile := "/etc/orxtunnel-banner.txt"
 	if _, err := os.Stat(bannerFile); os.IsNotExist(err) {
 		os.WriteFile(bannerFile, []byte("Welcome to ORX TUNNEL Server\n"), 0644)
 	}
@@ -46,11 +46,11 @@ func InstallDropbear(ports string) error {
 	}
 
 	if len(portFlags) == 0 {
-		return fmt.Errorf("no se especificaron puertos válidos")
+		return fmt.Errorf("no valid ports specified")
 	}
 
 	// 6. Construir ExecStart con todos los flags
-	// Formato: /usr/sbin/dropbear -p 143 -W 65536 -p 109 -b /etc/gerhanatunnel.txt
+	// Formato: /usr/sbin/dropbear -p 143 -W 65536 -p 109 -b /etc/orxtunnel-banner.txt
 	execStart := "/usr/sbin/dropbear -F"
 	for _, flag := range portFlags {
 		execStart += " " + flag
@@ -78,7 +78,7 @@ WantedBy=multi-user.target
 	exec.Command("systemctl", "daemon-reload").Run()
 	exec.Command("systemctl", "enable", "dropbear_custom").Run()
 	if err := exec.Command("systemctl", "restart", "dropbear_custom").Run(); err != nil {
-		return fmt.Errorf("fallo reinicio dropbear_custom: %v", err)
+		return fmt.Errorf("failed to restart dropbear_custom: %v", err)
 	}
 
 	return nil

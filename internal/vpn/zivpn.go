@@ -40,14 +40,14 @@ func InstallZivpn(port string) error {
 	} else if archRaw == "arm64" {
 		binURL = "https://github.com/zahidbd2/udp-zivpn/releases/download/udp-zivpn_1.4.9/udp-zivpn-linux-arm64"
 	} else {
-		return fmt.Errorf("arquitectura no soportada para Zivpn")
+		return fmt.Errorf("unsupported architecture for Zivpn")
 	}
 
 	// binario
 	if _, err := os.Stat("/usr/local/bin/zivpn"); os.IsNotExist(err) {
 		errDL := exec.Command("curl", "-L", "-s", "-f", "-o", "/usr/local/bin/zivpn", binURL).Run()
 		if errDL != nil {
-			return fmt.Errorf("fallo la descarga del binario zivpn: %v", errDL)
+			return fmt.Errorf("zivpn binary download failed: %v", errDL)
 		}
 		os.Chmod("/usr/local/bin/zivpn", 0755)
 	}
@@ -84,7 +84,7 @@ WantedBy=multi-user.target`
 	exec.Command("systemctl", "daemon-reload").Run()
 	_ = exec.Command("systemctl", "enable", "zivpn.service").Run()
 	if err := exec.Command("systemctl", "restart", "zivpn.service").Run(); err != nil {
-		return fmt.Errorf("fallo reiniciar zivpn.service: %v", err)
+		return fmt.Errorf("failed to restart zivpn.service: %v", err)
 	}
 
 	// 4. Verification Check
@@ -94,13 +94,13 @@ WantedBy=multi-user.target`
 		logCmd, _ := exec.Command("journalctl", "-u", "zivpn.service", "--no-pager", "-n", "10").Output()
 		logs := string(logCmd)
 		if logs == "" {
-			logs = "No se pudieron obtener logs."
+			logs = "Could not retrieve logs."
 		}
 
 		_ = exec.Command("systemctl", "stop", "zivpn.service").Run()
 		_ = os.Remove("/etc/systemd/system/zivpn.service")
 		_ = exec.Command("systemctl", "daemon-reload").Run()
-		return fmt.Errorf("zivpn no pudo mantenerse activo en el puerto %s.\n\n📝 <b>LOGS:</b>\n<pre>%s</pre>", port, logs)
+		return fmt.Errorf("zivpn could not stay active on port %s.\n\n📝 <b>LOGS:</b>\n<pre>%s</pre>", port, logs)
 	}
 
 	// Enrutamiento de UDP rango externo (6000-19999) hacia (port)

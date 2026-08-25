@@ -107,7 +107,7 @@ func SetLastBotMsg(chatID int64, msg *tele.Message) {
 // StartBot inicializa el bot de Telegram y registra los handlers
 func StartBot() {
 	if botToken == "" || superAdmin == "" {
-		log.Fatal("Variables BOT_TOKEN y SUPER_ADMIN son requeridas")
+		log.Fatal("BOT_TOKEN and SUPER_ADMIN variables are required")
 	}
 
 	pref := tele.Settings{
@@ -336,34 +336,34 @@ func StartBot() {
 	b.Handle(&tele.Btn{Unique: "banner_deactivate"}, func(c tele.Context) error { return handleBannerDeactivate(c, b) })
 	b.Handle(&tele.Btn{Unique: "edit_quotas"}, func(c tele.Context) error { return handleEditQuotas(c, b) })
 	b.Handle(&tele.Btn{Unique: "quota_days_public"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_days_public", "Días máximos para usuarios públicos")
+		return handleQuotaPrompt(c, b, "awaiting_quota_days_public", "Maximum days for public users")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_limit_public"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_limit_public", "Dispositivos máximos para usuarios públicos")
+		return handleQuotaPrompt(c, b, "awaiting_quota_limit_public", "Maximum devices for public users")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_days_admin"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_days_admin", "Días máximos para Admins")
+		return handleQuotaPrompt(c, b, "awaiting_quota_days_admin", "Maximum days for Admins")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_limit_admin"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_limit_admin", "Dispositivos máximos para Admins")
+		return handleQuotaPrompt(c, b, "awaiting_quota_limit_admin", "Maximum devices for Admins")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_xray_public"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_xray_public", "Máx cuentas VMess para Público")
+		return handleQuotaPrompt(c, b, "awaiting_quota_xray_public", "Max VMess accounts for Public")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_xray_admin"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_xray_admin", "Máx cuentas VMess para Admins")
+		return handleQuotaPrompt(c, b, "awaiting_quota_xray_admin", "Max VMess accounts for Admins")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_ssh_public"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_ssh_public", "Límite máx de cuentas SSH (Público)")
+		return handleQuotaPrompt(c, b, "awaiting_quota_ssh_public", "Max SSH account limit (Public)")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_ssh_admin"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_ssh_admin", "Límite máx de cuentas SSH (Admins)")
+		return handleQuotaPrompt(c, b, "awaiting_quota_ssh_admin", "Max SSH account limit (Admins)")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_zivpn_public"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_zivpn_public", "Límite máx de cuentas ZiVPN (Público)")
+		return handleQuotaPrompt(c, b, "awaiting_quota_zivpn_public", "Max ZiVPN account limit (Public)")
 	})
 	b.Handle(&tele.Btn{Unique: "quota_zivpn_admin"}, func(c tele.Context) error {
-		return handleQuotaPrompt(c, b, "awaiting_quota_zivpn_admin", "Límite máx de cuentas ZiVPN (Admins)")
+		return handleQuotaPrompt(c, b, "awaiting_quota_zivpn_admin", "Max ZiVPN account limit (Admins)")
 	})
 	b.Handle(&tele.Btn{Unique: "reset_history"}, func(c tele.Context) error { return handleResetHistoryConfirm(c, b) })
 	b.Handle(&tele.Btn{Unique: "reset_history_exec"}, func(c tele.Context) error { return handleResetHistoryExec(c, b) })
@@ -427,10 +427,10 @@ func StartBot() {
 	// Parchar config de Xray existente para habilitar access log y configurar resiliencia
 	if initData, _ := db.Load(); initData.Xray.Installed {
 		if err := vpn.EnsureXrayAccessLog(); err != nil {
-			log.Printf("Aviso: No se pudo habilitar access log de Xray: %v", err)
+			log.Printf("Warning: could not enable Xray access log: %v", err)
 		}
 		if err := vpn.EnsureXrayServiceResilience(); err != nil {
-			log.Printf("Aviso: No se pudo asegurar la resiliencia del servicio Xray: %v", err)
+			log.Printf("Warning: could not ensure Xray service resilience: %v", err)
 		}
 	}
 
@@ -440,7 +440,7 @@ func StartBot() {
 	// Verificar y reiniciar HAProxy si quedó caído tras un reboot del VPS
 	if initSSL, _ := db.Load(); initSSL.SSLTunnel != "" {
 		vpn.EnsureHAProxyRunning()
-		log.Println("HAProxy: verificado y restaurado correctamente")
+		log.Println("HAProxy: verified and restored successfully")
 	}
 
 	// Restaurar contraseñas ZiVPN en config.json tras reinicio de VPS
@@ -450,15 +450,15 @@ func StartBot() {
 			passwords = append(passwords, pass)
 		}
 		if err := vpn.RestoreZivpnPasswords(passwords); err != nil {
-			log.Printf("Aviso: No se pudieron restaurar contraseñas ZiVPN: %v", err)
+			log.Printf("Warning: Could not restore ZiVPN passwords: %v", err)
 		} else {
-			log.Printf("ZiVPN: %d contraseñas sincronizadas con config.json", len(passwords))
+			log.Printf("ZiVPN: %d passwords synchronized with config.json", len(passwords))
 		}
 	}
 
 	// Instalar sistema de banners individuales por usuario SSH
 	if err := sys.EnsureBannerSystem(); err != nil {
-		log.Printf("Aviso: No se pudo inicializar el sistema de banners: %v", err)
+		log.Printf("Warning: could not initialize the banner system: %v", err)
 	}
 	// Regenerar todos los banners existentes al iniciar
 	go sys.RefreshAllBanners()
@@ -472,7 +472,7 @@ func StartBot() {
 	// Iniciar hilo de notificaciones de expiración
 	go autoExpirationAlertLoop(b)
 
-	log.Println("Bot iniciado correctamente...")
+	log.Println("Bot started successfully...")
 	b.Start()
 }
 

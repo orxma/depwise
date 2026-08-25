@@ -22,7 +22,7 @@ func InstallXray() error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("falló la instalación de xray core: %v", err)
+		return fmt.Errorf("xray core installation failed: %v", err)
 	}
 
 	// 2. Crear configuración base de VMess WS
@@ -189,7 +189,7 @@ func AddXrayUser(uuid, email string) error {
 
 	inbounds, ok := cfg["inbounds"].([]interface{})
 	if !ok || len(inbounds) == 0 {
-		return fmt.Errorf("formato inbounds inválido en config.json")
+		return fmt.Errorf("invalid inbounds format in config.json")
 	}
 
 	inbound0 := inbounds[0].(map[string]interface{})
@@ -220,7 +220,7 @@ func RemoveXrayUser(uuid string) error {
 
 	inbounds, ok := cfg["inbounds"].([]interface{})
 	if !ok || len(inbounds) == 0 {
-		return fmt.Errorf("formato inbounds inválido en config.json")
+		return fmt.Errorf("invalid inbounds format in config.json")
 	}
 
 	inbound0 := inbounds[0].(map[string]interface{})

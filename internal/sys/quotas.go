@@ -14,7 +14,7 @@ func SetConnectionLimit(username string, maxLogins int) error {
 	exec.Command("sed", "-i", fmt.Sprintf("/^%s hard maxlogins/d", username), "/etc/security/limits.conf").Run()
 
 	if maxLogins <= 0 {
-		return nil // Sin límite
+		return nil // No limit
 	}
 
 	// Abrimos en modo append
@@ -123,7 +123,7 @@ func EnforceConnectionLimits() {
 
 	// 3. Evaluar y matar excesos
 	for user, pids := range userPids {
-		maxLogins := limitsMap[user] // Default es 0 (sin límite)
+		maxLogins := limitsMap[user] // Default is 0 (no limit)
 		if maxLogins > 0 && len(pids) > maxLogins {
 			// Matar los procesos más recientes que excedan
 			for i := maxLogins; i < len(pids); i++ {

@@ -139,7 +139,7 @@ func InstallSSLTunnel(port string) error {
 	// 1. Instalar HAProxy
 	exec.Command("apt-get", "update").Run()
 	if err := exec.Command("apt-get", "install", "-y", "haproxy").Run(); err != nil {
-		return fmt.Errorf("fallo instalacion haproxy: %v", err)
+		return fmt.Errorf("haproxy installation failed: %v", err)
 	}
 
 	// 2. Crear directorio para el socket
@@ -154,7 +154,7 @@ func InstallSSLTunnel(port string) error {
 			"-keyout", "/tmp/haproxy_key.pem", "-out", "/tmp/haproxy_cert.pem",
 			"-subj", "/CN=ssl-tunnel")
 		if err := cmdCert.Run(); err != nil {
-			return fmt.Errorf("fallo generar certificado: %v", err)
+			return fmt.Errorf("failed to generate certificate: %v", err)
 		}
 		exec.Command("bash", "-c", "cat /tmp/haproxy_key.pem /tmp/haproxy_cert.pem > "+certFile).Run()
 		os.Remove("/tmp/haproxy_key.pem")
@@ -182,7 +182,7 @@ func InstallSSLTunnel(port string) error {
 	}
 
 	if err := os.WriteFile(configFile, []byte(config), 0644); err != nil {
-		return fmt.Errorf("fallo escribir haproxy.cfg: %v", err)
+		return fmt.Errorf("failed to write haproxy.cfg: %v", err)
 	}
 
 	// 7. Crear servicio SSH WebSocket interno (puerto 10015) si no existe
@@ -195,13 +195,13 @@ func InstallSSLTunnel(port string) error {
 
 	// 9. Validar y reiniciar HAProxy
 	if out, err := exec.Command("haproxy", "-c", "-f", configFile).CombinedOutput(); err != nil {
-		return fmt.Errorf("configuración haproxy inválida: %s", string(out))
+		return fmt.Errorf("invalid haproxy configuration: %s", string(out))
 	}
 
 	exec.Command("systemctl", "daemon-reload").Run()
 	exec.Command("systemctl", "enable", "haproxy").Run()
 	if err := exec.Command("systemctl", "restart", "haproxy").Run(); err != nil {
-		return fmt.Errorf("fallo reinicio haproxy: %v", err)
+		return fmt.Errorf("failed to restart haproxy: %v", err)
 	}
 
 	return nil
@@ -213,7 +213,7 @@ func installSSHWSInternal() {
 	_ = exec.Command("apt-get", "install", "-y", "-qq", "python3").Run()
 
 	proxyCode := `#!/usr/bin/env python3
-"""SSH WebSocket Proxy (interno para HAProxy) - Puerto 10015"""
+"""SSH WebSocket Proxy (internal for HAProxy) - Port 10015"""
 import asyncio, sys, ssl, signal, os
 BUFFER_SIZE = 65536
 SSH_HOST = "127.0.0.1"
@@ -378,7 +378,7 @@ func EnsureHAProxyRunning() {
 
 	// 4. Verificar si HAProxy ya está activo
 	if exec.Command("systemctl", "is-active", "--quiet", "haproxy").Run() == nil {
-		return // Ya está corriendo correctamente
+		return // Already running correctly
 	}
 
 	// 5. HAProxy está caído — matar procesos invasores en sus puertos

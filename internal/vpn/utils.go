@@ -35,7 +35,7 @@ func installLibSSL11() {
 
 // GetSystemReport returns a diagnostic string about network and services
 func GetSystemReport() string {
-	report := "🛡️ <b>REPORTE TÉCNICO DE RED</b>\n\n"
+	report := "🛡️ <b>NETWORK TECHNICAL REPORT</b>\n\n"
 
 	// 1. IPTables NAT (Prerouting)
 	iptNat, _ := exec.Command("bash", "-c", "iptables -t nat -L PREROUTING -n -v | head -15").Output()
@@ -52,7 +52,7 @@ func GetSystemReport() string {
 		"zivpn.service",
 		"falconproxy.service",
 	}
-	report += "⚙️ <b>Estado Servicios:</b>\n"
+	report += "⚙️ <b>Service Status:</b>\n"
 	for _, s := range svcs {
 		active, _ := exec.Command("systemctl", "is-active", s).Output()
 		status := strings.TrimSpace(string(active))

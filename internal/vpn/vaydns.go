@@ -42,7 +42,7 @@ func InstallVayDNS(domain, port string) (string, error) {
 	}
 
 	if !success {
-		return "", fmt.Errorf("fallo al descargar binario para %s", arch)
+		return "", fmt.Errorf("failed to download binary for %s", arch)
 	}
 	os.Chmod("/usr/bin/vaydns-server", 0755)
 

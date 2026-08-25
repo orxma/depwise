@@ -197,7 +197,7 @@ func GetPublicIP() string {
 		out, err := exec.Command("curl", "-4", "-s", "--connect-timeout", "5", url).Output()
 		if err == nil && len(out) > 5 {
 			ip := strings.TrimSpace(string(out))
-			if strings.Count(ip, ".") == 3 { // Validar formato básico IPv4
+			if strings.Count(ip, ".") == 3 { // Validate basic IPv4 format
 				return ip
 			}
 		}

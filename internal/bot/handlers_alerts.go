@@ -95,7 +95,7 @@ func autoExpirationAlertLoop(b *tele.Bot) {
 				processAlert("Xray/V2Ray", "xray", uid, user.Expire, user.Owner)
 			}
 		} else {
-			log.Printf("Error leyendo DB para alertas: %v", err)
+			log.Printf("Error reading DB for alerts: %v", err)
 		}
 		
 		<-ticker.C

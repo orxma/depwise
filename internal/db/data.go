@@ -157,7 +157,7 @@ func loadUnlocked() (*ConfigData, error) {
 	var data ConfigData
 	err = json.Unmarshal(raw, &data)
 	if err != nil {
-		return defaultData(), err // Archivo corrupto, reset fallback (en un caso real, haríamos backup)
+		return defaultData(), err // Corrupt file, reset fallback (in a real case we would back it up)
 	}
 
 	// Inicializaciones de seguridad para mapas nulos
@@ -358,7 +358,7 @@ func defaultData() *ConfigData {
 	return &ConfigData{
 		Admins:        make(map[string]AdminInfo),
 		BannedUsers:   make(map[string]BannedUserInfo),
-		ExtraInfo:     "Puertos: 22, 80, 443",
+		ExtraInfo:     "Ports: 22, 80, 443",
 		PublicAccess:  true,
 		SSHOwners:     make(map[string]string),
 		SSHTimeUsers:  make(map[string]string),

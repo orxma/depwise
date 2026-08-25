@@ -25,22 +25,22 @@ func CheckForUpdate() (bool, string, error) {
 	urlWithNoCache := fmt.Sprintf("%s?t=%d", RemoteVersionURL, time.Now().Unix())
 	resp, err := http.Get(urlWithNoCache)
 	if err != nil {
-		return false, "", fmt.Errorf("error conectando con GitHub: %v", err)
+		return false, "", fmt.Errorf("error connecting to GitHub: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return false, "", fmt.Errorf("código HTTP inesperado: %d", resp.StatusCode)
+		return false, "", fmt.Errorf("unexpected HTTP status: %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return false, "", fmt.Errorf("error leyendo versión remota: %v", err)
+		return false, "", fmt.Errorf("error reading remote version: %v", err)
 	}
 
 	remoteVerStr := strings.TrimSpace(string(body))
 	if remoteVerStr == "" {
-		return false, "", fmt.Errorf("archivo de versión remoto vacío")
+		return false, "", fmt.Errorf("remote version file is empty")
 	}
 
 	// Comparación muy simple asumiendo formato "7.4", "7.5", etc.
@@ -78,7 +78,7 @@ systemctl restart orxtunnel
 `
 	err := os.WriteFile("/tmp/orxtunnel_update.sh", []byte(updateScript), 0755)
 	if err != nil {
-		return fmt.Errorf("error creando script de actualización: %v", err)
+		return fmt.Errorf("error creating update script: %v", err)
 	}
 
 	unitName := fmt.Sprintf("orxtunnel-updater-%d", time.Now().Unix())

@@ -27,7 +27,7 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 		title = "INTERNET ILIMITADO"
 	}
 
-	promoText := "🔥 ¡SERVIDORES PREMIUM! 🔥"
+	promoText := "🔥 PREMIUM SERVERS! 🔥"
 	if data != nil && data.BannerPromoText != "" {
 		promoText = data.BannerPromoText
 	}
@@ -37,7 +37,7 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 		promoChannel = data.BannerPromoChannel
 	}
 
-	promoSupport := "@KTTOFICIAL"
+	promoSupport := "@orxtunnel"
 	if data != nil && data.BannerPromoSupport != "" {
 		promoSupport = data.BannerPromoSupport
 	}
@@ -59,80 +59,80 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 
 	limitStr := fmt.Sprintf("%d", limit)
 	if limit <= 0 {
-		limitStr = "∞ Ilimitado"
+		limitStr = "∞ Unlimited"
 	}
 
 	var b strings.Builder
 
 	b.WriteString("<html>\n")
 
-	// Separador superior
+	// Top separator
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font color='#29b6f6'>══════════════════════</font>")
 	b.WriteString("</h5>\n")
 
-	// Logo braille ORX TUNNEL (probado y funcional en HTTP Injector)
+	// Braille logo ORX TUNNEL (probado y funcional en HTTP Injector)
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font face=\"monospace\" color=\"#00ff00\">")
-	b.WriteString("⠀⠀⢀⣶⡆kevin tech tutorials⢰⣶⡀⠀⠀<br>")
+	b.WriteString("⠀⠀⢀⣶⡆orx tunnel⢰⣶⡀⠀⠀<br>")
 	b.WriteString("</font>")
 	b.WriteString("</h5>\n")
 
-	// Texto ORX TUNNEL
+	// Text ORX TUNNEL
 	b.WriteString("<h1 style=\"text-align:center;\">")
 	b.WriteString("<font face=\"monospace\" color=\"#00ff00\"><b>ORX TUNNEL</b></font>")
 	b.WriteString("</h1>\n")
 
-	// Separador
+	// Separator
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font color='#29b6f6'>══════════════════════</font>")
 	b.WriteString("</h5>\n")
 
-	// Título personalizado
+	// Custom title
 	b.WriteString("<h3 style=\"text-align:center;\">")
 	b.WriteString(fmt.Sprintf("<font color='#FF00FF'><b>⚡ %s ⚡</b></font>", title))
 	b.WriteString("</h3>\n")
 
-	// Separador
+	// Separator
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font color='#29b6f6'>══════════════════════</font>")
 	b.WriteString("</h5>\n")
 
-	// Datos de la cuenta — cada dato en su propia línea con <br>
+	// Account data - one item per line with <br>
 	b.WriteString("<h5 style=\"text-align:center;\">")
-	b.WriteString(fmt.Sprintf("<font color='#ffffff'>👤 Usuario: </font><font color='#f1c40f'><b>%s</b></font><br>", username))
-	b.WriteString(fmt.Sprintf("<font color='#ffffff'>📅 Vence: </font><font color='#f1c40f'><b>%s</b></font><br>", expireDate))
-	b.WriteString(fmt.Sprintf("<font color='#ffffff'>⏳ Días Restant.: </font><font color='#f1c40f'><b>%d</b></font><br>", daysLeft))
-	b.WriteString(fmt.Sprintf("<font color='#ffffff'>💻 Límite: </font><font color='#f1c40f'><b>%s</b></font>", limitStr))
+	b.WriteString(fmt.Sprintf("<font color='#ffffff'>👤 User: </font><font color='#f1c40f'><b>%s</b></font><br>", username))
+	b.WriteString(fmt.Sprintf("<font color='#ffffff'>📅 Expires: </font><font color='#f1c40f'><b>%s</b></font><br>", expireDate))
+	b.WriteString(fmt.Sprintf("<font color='#ffffff'>⏳ Days Left: </font><font color='#f1c40f'><b>%d</b></font><br>", daysLeft))
+	b.WriteString(fmt.Sprintf("<font color='#ffffff'>💻 Limit: </font><font color='#f1c40f'><b>%s</b></font>", limitStr))
 	b.WriteString("</h5>\n")
 
-	// Separador
+	// Separator
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font color='#29b6f6'>══════════════════════</font>")
 	b.WriteString("</h5>\n")
 
-	// Promoción
+	// Promotion
 	b.WriteString("<h4 style=\"text-align:center;\">")
 	b.WriteString(fmt.Sprintf("<font color='#FF00FF'><b>%s</b></font>", promoText))
 	b.WriteString("</h4>\n")
 
-	// Contacto — cada uno en su línea
+	// Contact - one per line
 	b.WriteString("<h5 style=\"text-align:center;\">")
-	b.WriteString(fmt.Sprintf("<font color='#ffffff'>📢 Canal: </font><a href=\"https://t.me/%s\"><font color='#f1c40f'>%s</font></a><br>", strings.TrimPrefix(promoChannel, "@"), promoChannel))
-	b.WriteString(fmt.Sprintf("<font color='#ffffff'>👤 Soporte: </font><a href=\"https://t.me/%s\"><font color='#f1c40f'>%s</font></a>", strings.TrimPrefix(promoSupport, "@"), promoSupport))
+	b.WriteString(fmt.Sprintf("<font color='#ffffff'>📢 Channel: </font><a href=\"https://t.me/%s\"><font color='#f1c40f'>%s</font></a><br>", strings.TrimPrefix(promoChannel, "@"), promoChannel))
+	b.WriteString(fmt.Sprintf("<font color='#ffffff'>👤 Support: </font><a href=\"https://t.me/%s\"><font color='#f1c40f'>%s</font></a>", strings.TrimPrefix(promoSupport, "@"), promoSupport))
 	b.WriteString("</h5>\n")
 
-	// Separador
+	// Separator
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font color='#29b6f6'>══════════════════════</font>")
 	b.WriteString("</h5>\n")
 
-	// Crédito
+	// Credit
 	b.WriteString("<h5 style=\"text-align:center;\">")
-	b.WriteString(fmt.Sprintf("<font color='#00e676'><b>✅ CREADO EN : %s</b></font>", promoBotName))
+	b.WriteString(fmt.Sprintf("<font color='#00e676'><b>✅ CREATED IN : %s</b></font>", promoBotName))
 	b.WriteString("</h5>\n")
 
-	// Línea inferior
+	// Bottom line
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font color='#29b6f6'>══════════════════════</font>")
 	b.WriteString("</h5>\n")
@@ -145,7 +145,7 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 // WriteUserBanner genera y escribe el banner de un usuario en /etc/ssh_banners/
 func WriteUserBanner(username, title string, limit int, expireDate string, data *db.ConfigData) error {
 	if err := os.MkdirAll(bannerDir, 0755); err != nil {
-		return fmt.Errorf("error creando directorio de banners: %v", err)
+		return fmt.Errorf("error creating banners directory: %v", err)
 	}
 
 	content := GenerateUserBanner(username, title, limit, expireDate, data)
@@ -181,7 +181,7 @@ func SyncSSHDBanners() error {
 	// Leer sshd_config actual
 	raw, err := os.ReadFile(sshdConfig)
 	if err != nil {
-		return fmt.Errorf("no se pudo leer sshd_config: %v", err)
+		return fmt.Errorf("could not read sshd_config: %v", err)
 	}
 
 	content := string(raw)

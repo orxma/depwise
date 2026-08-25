@@ -136,7 +136,7 @@ func AutoCleanupLoop(b *tele.Bot) {
 
 			// Notificar admins expirados (llamada de red fuera del lock)
 			for _, id := range expiredAdmins {
-				b.Send(&tele.User{ID: id}, "⏳ <b>Suscripción de Administrador Expirada</b>\n\nTu tiempo de acceso como administrador ha finalizado. Tu cuenta ha vuelto a ser de usuario normal.\n\nGracias por usar nuestro servicio.", tele.ModeHTML)
+				b.Send(&tele.User{ID: id}, "⏳ <b>Administrator Subscription Expired</b>\n\nYour administrator access time has ended. Your account has reverted to a normal user.\n\nThank you for using our service.", tele.ModeHTML)
 			}
 
 			if len(expiredSSH) > 0 {
@@ -167,7 +167,7 @@ func AutoCleanupLoop(b *tele.Bot) {
 						data, _ := db.Load()
 						for adminID := range data.Admins {
 							id, _ := strconv.ParseInt(adminID, 10, 64)
-							b.Send(&tele.User{ID: id}, "🔄 <b>ACTUALIZACIÓN AUTOMÁTICA</b>\nSe ha detectado una nueva versión del bot en GitHub. Aplicando actualización en segundo plano...")
+							b.Send(&tele.User{ID: id}, "🔄 <b>AUTOMATIC UPDATE</b>\nA new version of the bot was detected on GitHub. Applying the update in the background...")
 						}
 						RunUpdate()
 					}

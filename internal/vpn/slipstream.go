@@ -16,7 +16,7 @@ func InstallSlipstream(domain, port string) error {
 	} else if arch == "arm64" {
 		url = "https://github.com/Mygod/slipstream-rust/releases/download/v0.1.1/slipstream-linux-arm64.tar.gz"
 	} else {
-		return fmt.Errorf("arquitectura no soportada por slipstream: %s", arch)
+		return fmt.Errorf("unsupported architecture for slipstream: %s", arch)
 	}
 
 	// Download and extract slipstream-server
@@ -25,7 +25,7 @@ func InstallSlipstream(domain, port string) error {
 
 	cmd := exec.Command("curl", "-L", "-s", "-o", "/tmp/slipstream/slip.tar.gz", url)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("error descargando slipstream: %v", err)
+		return fmt.Errorf("error downloading slipstream: %v", err)
 	}
 
 	cmd = exec.Command("tar", "-xzf", "/tmp/slipstream/slip.tar.gz", "-C", "/tmp/slipstream")

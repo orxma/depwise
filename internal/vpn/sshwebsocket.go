@@ -47,7 +47,7 @@ func InstallSSHWebSocket() error {
 	// Descargar ssh-ws-pro
 	if err := exec.Command("curl", "-L", "-s", "-f", "-o", sshWsProBin, sshWsProURL).Run(); err != nil {
 		// Continuar sin ssh-ws-pro (no es crítico)
-		fmt.Println("[WARN] No se pudo descargar ssh-ws-pro, continuando sin él")
+		fmt.Println("[WARN] Could not download ssh-ws-pro, continuing without it")
 	} else {
 		os.Chmod(sshWsProBin, 0755)
 	}
@@ -70,7 +70,7 @@ StandardError=journal
 WantedBy=multi-user.target`
 
 	if err := os.WriteFile("/etc/systemd/system/"+sshWsSvc+".service", []byte(svcWS), 0644); err != nil {
-		return fmt.Errorf("fallo escribir ssh-ws.service: %v", err)
+		return fmt.Errorf("failed to write ssh-ws.service: %v", err)
 	}
 
 	// 4. Servicio ssh-ws-pro (puerto 2082 → SSH)
@@ -92,7 +92,7 @@ StandardError=journal
 WantedBy=multi-target.target`
 
 		if err := os.WriteFile("/etc/systemd/system/"+sshWsProSvc+".service", []byte(svcWSPro), 0644); err != nil {
-			return fmt.Errorf("fallo escribir ssh-ws-pro.service: %v", err)
+			return fmt.Errorf("failed to write ssh-ws-pro.service: %v", err)
 		}
 	}
 
@@ -100,7 +100,7 @@ WantedBy=multi-target.target`
 	exec.Command("systemctl", "daemon-reload").Run()
 	exec.Command("systemctl", "enable", sshWsSvc+".service").Run()
 	if err := exec.Command("systemctl", "restart", sshWsSvc+".service").Run(); err != nil {
-		return fmt.Errorf("fallo iniciar ssh-ws: %v", err)
+		return fmt.Errorf("failed to start ssh-ws: %v", err)
 	}
 
 	// ssh-ws-pro es opcional
@@ -210,7 +210,7 @@ WantedBy=multi-user.target`
 	exec.Command("systemctl", "daemon-reload").Run()
 	exec.Command("systemctl", "enable", "ssh-ws.service").Run()
 	if err := exec.Command("systemctl", "restart", "ssh-ws.service").Run(); err != nil {
-		return fmt.Errorf("fallo iniciar ssh-ws (python fallback): %v", err)
+		return fmt.Errorf("failed to start ssh-ws (python fallback): %v", err)
 	}
 
 	return nil

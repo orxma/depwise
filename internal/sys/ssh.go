@@ -43,7 +43,7 @@ func CreateSSHUser(username string, password string, days int) error {
 	// Usamos /bin/false para denegar el acceso a la consola/comandos, pero permite túnel VPN
 	_, err := ExecCmdRun("useradd", "-M", "-s", "/bin/false", "-e", expireDate, username)
 	if err != nil {
-		return fmt.Errorf("fallo al crear usuario: %v", err)
+		return fmt.Errorf("failed to create user: %v", err)
 	}
 
 	// 3. chpasswd
@@ -53,7 +53,7 @@ func CreateSSHUser(username string, password string, days int) error {
 	if err := cmd.Run(); err != nil {
 		// Rollback (borramos usuario si chpasswd falla)
 		_ = DeleteSSHUser(username)
-		return fmt.Errorf("fallo al asignar contraseña: %v", err)
+		return fmt.Errorf("failed to set password: %v", err)
 	}
 
 	return nil
@@ -86,10 +86,10 @@ func DeleteSSHUser(username string) error {
 		if cmd.Process != nil {
 			cmd.Process.Kill()
 		}
-		fmt.Printf("Aviso: userdel para %s tardó demasiado y fue terminado.\n", username)
+		fmt.Printf("Warning: userdel for %s took too long and was terminated.\n", username)
 	case err := <-done:
 		if err != nil {
-			fmt.Printf("Aviso: error en userdel para %s: %v\n", username, err)
+			fmt.Printf("Warning: userdel error for %s: %v\n", username, err)
 		}
 	}
 
@@ -113,9 +113,9 @@ func UpdateSSHUserPassword(username, newPassword string) error {
 	cmd.Stdin = bytes.NewBufferString(fmt.Sprintf("%s:%s", username, newPassword))
 	if err := cmd.Run(); err != nil {
 		if ctx.Err() == context.DeadlineExceeded {
-			return fmt.Errorf("timeout actualizando contraseña")
+			return fmt.Errorf("timeout updating password")
 		}
-		return fmt.Errorf("fallo al actualizar contraseña: %v", err)
+		return fmt.Errorf("failed to update password: %v", err)
 	}
 	return nil
 }

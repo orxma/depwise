@@ -35,13 +35,13 @@ func InstallUDPCustom(port string) error {
 	} else if archRaw == "arm64" {
 		binURL = "https://github.com/Depwisescript/UDP/raw/main/udp-custom-linux-arm"
 	} else {
-		return fmt.Errorf("arquitectura no soportada para UDP Custom: %s", archRaw)
+		return fmt.Errorf("unsupported architecture for UDP Custom: %s", archRaw)
 	}
 
 	// Descargar binario como /usr/bin/udp
 	errDL := exec.Command("curl", "-L", "-s", "-f", "-o", "/usr/bin/udp", binURL).Run()
 	if errDL != nil {
-		return fmt.Errorf("fallo la descarga del binario udp: %v", errDL)
+		return fmt.Errorf("udp binary download failed: %v", errDL)
 	}
 	os.Chmod("/usr/bin/udp", 0755)
 
@@ -76,7 +76,7 @@ WantedBy=multi-user.target`
 	exec.Command("systemctl", "daemon-reload").Run()
 	_ = exec.Command("systemctl", "enable", "udp-custom.service").Run()
 	if err := exec.Command("systemctl", "restart", "udp-custom.service").Run(); err != nil {
-		return fmt.Errorf("fallo reiniciar udp-custom.service: %v", err)
+		return fmt.Errorf("failed to restart udp-custom.service: %v", err)
 	}
 
 	// Verificar inicio

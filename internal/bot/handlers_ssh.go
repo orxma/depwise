@@ -103,7 +103,7 @@ func handleTextInputs(c tele.Context, b *tele.Bot) error {
 	textLower := strings.ToLower(strings.TrimSpace(text))
 
 	// Interceptar comandos de navegación para cancelar estado
-	if (strings.HasPrefix(text, "/") && !strings.HasPrefix(text, "//")) || textLower == "menu" || textLower == "salir" || textLower == "atrás" || textLower == "atras" || textLower == "cancelar" {
+	if (strings.HasPrefix(text, "/") && !strings.HasPrefix(text, "//")) || textLower == "menu" || textLower == "salir" || textLower == "atrás" || textLower == "atras" || textLower == "cancelar" || textLower == "exit" || textLower == "back" || textLower == "cancel" {
 		DeleteUserStep(chatID)
 		return handleStart(c, b)
 	}
@@ -730,7 +730,7 @@ func processInfoCuenta(target string, chatID int64, c tele.Context, b *tele.Bot)
 			accType = "🔒 SSH / Dropbear"
 			expire = exp
 			limit := sys.GetUserMaxLogins(target)
-			details = fmt.Sprintf("👤 <b>Usuario:</b> <code>%s</code>\n💻 <b>Límite:</b> %d", target, limit)
+			details = fmt.Sprintf("👤 <b>User:</b> <code>%s</code>\n💻 <b>Limit:</b> %d", target, limit)
 		}
 	}
 

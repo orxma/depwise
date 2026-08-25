@@ -16,7 +16,7 @@ import (
 func handleProtocolDiag(c tele.Context, b *tele.Bot) error {
 	report := vpn.GetSystemReport()
 	markup := &tele.ReplyMarkup{}
-	markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
+	markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
 	return SafeEditCtx(c, b, report, markup)
 }
 
@@ -36,7 +36,7 @@ func handleMenuProtocols(c tele.Context, b *tele.Bot) error {
 	btnDropbear := markup.Data("🐻 Dropbear", "submenu_dropbear")
 	btnXray := markup.Data("💎 Xray (VMess)", "submenu_xray")
 	btnScanner := markup.Data("🔍 Escaner", "submenu_scanner")
-	btnCancel := markup.Data("🔙 Volver", "back_main")
+	btnCancel := markup.Data("🔙 Back", "back_main")
 
 	markup.Inline(
 		markup.Row(btnSlowDNS, btnVayDNS, btnSlipstream),
@@ -45,12 +45,12 @@ func handleMenuProtocols(c tele.Context, b *tele.Bot) error {
 		markup.Row(btnFalcon, btnSSL),
 		markup.Row(btnDropbear, btnXray),
 		markup.Row(btnScanner),
-		markup.Row(markup.Data("🛡️ Diagnóstico de Red", "protocol_diag")),
+		markup.Row(markup.Data("🛡️ Network Diagnostic", "protocol_diag")),
 		markup.Row(btnCancel),
 	)
 
 	texto := "⚙️ <b>Gestor de Protocolos VPN</b>\n\n"
-	texto += "<i>Selecciona un protocolo para ver las opciones de instalación o desinstalación.</i>"
+	texto += "<i>Select a protocol to view installation or uninstallation options.</i>"
 
 	return SafeEditCtx(c, b, texto, markup)
 }
@@ -83,11 +83,11 @@ func handleSubMenuSlowDNS(c tele.Context, b *tele.Bot) error {
 	markup := &tele.ReplyMarkup{}
 	btnInst := markup.Data("📥 Instalar / Reconfigurar", "install_slowdns")
 	btnUninst := markup.Data("🗑️ Desinstalar", "uninstall_slowdns")
-	btnBack := markup.Data("🔙 Volver", "menu_protocols")
+	btnBack := markup.Data("🔙 Back", "menu_protocols")
 
 	markup.Inline(markup.Row(btnInst), markup.Row(btnUninst), markup.Row(btnBack))
 
-	texto := fmt.Sprintf("🐢 <b>Gestión de SlowDNS / Noiz DNS</b>\n\n📊 <b>Estado:</b> %s\n🌍 <b>NS:</b> %s\n\n¿Qué deseas hacer?", status, data.SlowDNS.NS)
+	texto := fmt.Sprintf("🐢 <b>SlowDNS / Noiz DNS Management</b>\n\n📊 <b>Status:</b> %s\n🌍 <b>NS:</b> %s\n\nWhat would you like to do?", status, data.SlowDNS.NS)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -101,11 +101,11 @@ func handleSubMenuVayDNS(c tele.Context, b *tele.Bot) error {
 	markup := &tele.ReplyMarkup{}
 	btnInst := markup.Data("📥 Instalar / Reconfigurar", "install_vaydns")
 	btnUninst := markup.Data("🗑️ Desinstalar", "uninstall_vaydns")
-	btnBack := markup.Data("🔙 Volver", "menu_protocols")
+	btnBack := markup.Data("🔙 Back", "menu_protocols")
 
 	markup.Inline(markup.Row(btnInst), markup.Row(btnUninst), markup.Row(btnBack))
 
-	texto := fmt.Sprintf("🚀 <b>Gestión de VayDNS</b>\n\n📊 <b>Estado:</b> %s\n🌍 <b>NS:</b> %s\n\n¿Qué deseas hacer?", status, data.VayDNS.NS)
+	texto := fmt.Sprintf("🚀 <b>VayDNS Management</b>\n\n📊 <b>Status:</b> %s\n🌍 <b>NS:</b> %s\n\nWhat would you like to do?", status, data.VayDNS.NS)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -119,11 +119,11 @@ func handleSubMenuSlipstream(c tele.Context, b *tele.Bot) error {
 	markup := &tele.ReplyMarkup{}
 	btnInst := markup.Data("📥 Instalar / Reconfigurar", "install_slipstream")
 	btnUninst := markup.Data("🗑️ Desinstalar", "uninstall_slipstream")
-	btnBack := markup.Data("🔙 Volver", "menu_protocols")
+	btnBack := markup.Data("🔙 Back", "menu_protocols")
 
 	markup.Inline(markup.Row(btnInst), markup.Row(btnUninst), markup.Row(btnBack))
 
-	texto := fmt.Sprintf("🌊 <b>Gestión de Slipstream</b>\n\n📊 <b>Estado:</b> %s\n🌍 <b>Dominio:</b> %s\n\nProtocolo QUIC ultra-rápido sobre UDP 53.\nIdeal para SlipNet.\n\n¿Qué deseas hacer?", status, data.Slipstream.NS)
+	texto := fmt.Sprintf("🌊 <b>Slipstream Management</b>\n\n📊 <b>Status:</b> %s\n🌍 <b>Domain:</b> %s\n\nUltra-fast QUIC protocol over UDP 53.\nIdeal for SlipNet.\n\nWhat would you like to do?", status, data.Slipstream.NS)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -137,11 +137,11 @@ func handleSubMenuZiVPN(c tele.Context, b *tele.Bot) error {
 	markup := &tele.ReplyMarkup{}
 	btnInst := markup.Data("📥 Instalar", "install_zivpn")
 	btnUninst := markup.Data("🗑️ Desinstalar", "uninstall_zivpn")
-	btnBack := markup.Data("🔙 Volver", "menu_protocols")
+	btnBack := markup.Data("🔙 Back", "menu_protocols")
 
 	markup.Inline(markup.Row(btnInst), markup.Row(btnUninst), markup.Row(btnBack))
 
-	texto := fmt.Sprintf("🛰️ <b>Gestión de ZiVPN</b>\n\n📊 <b>Estado:</b> %s\n\n¿Qué deseas hacer?", status)
+	texto := fmt.Sprintf("🛰️ <b>ZiVPN Management</b>\n\n📊 <b>Status:</b> %s\n\nWhat would you like to do?", status)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -154,12 +154,12 @@ func handleSubMenuUDPCustom(c tele.Context, b *tele.Bot) error {
 
 	markup := &tele.ReplyMarkup{}
 	btnInst := markup.Data("📥 Instalar", "install_udpcustom")
-	btnUninst := markup.Data("🗑️ Desinstalación Completa", "uninstall_udpcustom")
-	btnBack := markup.Data("🔙 Volver", "menu_protocols")
+	btnUninst := markup.Data("🗑️ Full Uninstall", "uninstall_udpcustom")
+	btnBack := markup.Data("🔙 Back", "menu_protocols")
 
 	markup.Inline(markup.Row(btnInst), markup.Row(btnUninst), markup.Row(btnBack))
 
-	texto := fmt.Sprintf("📡 <b>Gestión de UDP Custom (HTTP Custom)</b>\n\n📊 <b>Estado:</b> %s\n\nEste protocolo es el que utiliza específicamente la aplicación <b>HTTP Custom</b> en su opción 'UDP Custom'.\n\n¿Qué deseas hacer?", status)
+	texto := fmt.Sprintf("📡 <b>UDP Custom (HTTP Custom) Management</b>\n\n📊 <b>Status:</b> %s\n\nThis protocol is the one specifically used by the <b>HTTP Custom</b> app in its 'UDP Custom' option.\n\nWhat would you like to do?", status)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -167,17 +167,17 @@ func handleSubMenuBadVPN(c tele.Context, b *tele.Bot) error {
 	data, _ := db.Load()
 	status := "❌ Desinstalado"
 	if data.BadVPN {
-		status = "✅ Instalado (Puertos: 7100, 7200, 7300)"
+		status = "✅ Installed (Ports: 7100, 7200, 7300)"
 	}
 
 	markup := &tele.ReplyMarkup{}
 	btnInst := markup.Data("📥 Instalar", "install_badvpn")
 	btnUninst := markup.Data("🗑️ Desinstalar", "uninstall_badvpn")
-	btnBack := markup.Data("🔙 Volver", "menu_protocols")
+	btnBack := markup.Data("🔙 Back", "menu_protocols")
 
 	markup.Inline(markup.Row(btnInst), markup.Row(btnUninst), markup.Row(btnBack))
 
-	texto := fmt.Sprintf("🎮 <b>Gestión de BadVPN</b>\n\n📊 <b>Estado:</b> %s\n\n⚙️ Escucha en puertos <code>7100</code>, <code>7200</code>, <code>7300</code> (automático)\n\n¿Qué deseas hacer?", status)
+	texto := fmt.Sprintf("🎮 <b>BadVPN Management</b>\n\n📊 <b>Status:</b> %s\n\n⚙️ Listens on ports <code>7100</code>, <code>7200</code>, <code>7300</code> (automatic)\n\nWhat would you like to do?", status)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -186,9 +186,9 @@ func handleSubMenuFalcon(c tele.Context, b *tele.Bot) error {
 	markup.Inline(
 		markup.Row(markup.Data("📥 Instalar", "install_falcon")),
 		markup.Row(markup.Data("🗑️ Desinstall", "uninstall_falcon")),
-		markup.Row(markup.Data("🔙 Volver", "menu_protocols")),
+		markup.Row(markup.Data("🔙 Back", "menu_protocols")),
 	)
-	return SafeEditCtx(c, b, "🦅 <b>Gestión de Falcon Proxy</b>\n\n¿Qué deseas hacer?", markup)
+	return SafeEditCtx(c, b, "🦅 <b>Falcon Proxy Management</b>\n\nWhat would you like to do?", markup)
 }
 
 func handleSubMenuSSL(c tele.Context, b *tele.Bot) error {
@@ -202,9 +202,9 @@ func handleSubMenuSSL(c tele.Context, b *tele.Bot) error {
 	markup.Inline(
 		markup.Row(markup.Data("📥 Instalar", "install_ssl")),
 		markup.Row(markup.Data("🗑️ Desinstalar", "uninstall_ssl")),
-		markup.Row(markup.Data("🔙 Volver", "menu_protocols")),
+		markup.Row(markup.Data("🔙 Back", "menu_protocols")),
 	)
-	texto := fmt.Sprintf("📜 <b>Gestión de SSL Tunnel (HAProxy)</b>\n\n📊 <b>Estado:</b> %s\n\n⚙️ Instala HAProxy multi-protocolo en puertos 443, 80, 8080\n🎮 <b>Requierido para juegos</b> (redirige WebSocket → SSH → BadVPN)\n\n¿Qué deseas hacer?", status)
+	texto := fmt.Sprintf("📜 <b>SSL Tunnel (HAProxy) Management</b>\n\n📊 <b>Status:</b> %s\n\n⚙️ Installs multi-protocol HAProxy on ports 443, 80, 8080\n🎮 <b>Required for gaming</b> (routes WebSocket → SSH → BadVPN)\n\nWhat would you like to do?", status)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -212,16 +212,16 @@ func handleSubMenuDropbear(c tele.Context, b *tele.Bot) error {
 	data, _ := db.Load()
 	status := "❌ Desinstalado"
 	if data.Dropbear != "" {
-		status = "✅ Instalado (Puertos: " + data.Dropbear + ")"
+		status = "✅ Installed (Ports: " + data.Dropbear + ")"
 	}
 
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(
 		markup.Row(markup.Data("📥 Instalar", "install_dropbear")),
 		markup.Row(markup.Data("🗑️ Desinstalar", "uninstall_dropbear")),
-		markup.Row(markup.Data("🔙 Volver", "menu_protocols")),
+		markup.Row(markup.Data("🔙 Back", "menu_protocols")),
 	)
-	texto := fmt.Sprintf("🐻 <b>Gestión de Dropbear</b>\n\n📊 <b>Estado:</b> %s\n\nPuedes especificar múltiples puertos separados por coma (Ej: 143,109)\n\n¿Qué deseas hacer?", status)
+	texto := fmt.Sprintf("🐻 <b>Dropbear Management</b>\n\n📊 <b>Status:</b> %s\n\nYou can specify multiple ports separated by commas (e.g. 143,109)\n\nWhat would you like to do?", status)
 	return SafeEditCtx(c, b, texto, markup)
 }
 
@@ -232,16 +232,16 @@ func handleSubMenuProxyDT(c tele.Context, b *tele.Bot) error {
 	markup.Inline(
 		markup.Row(markup.Data("📥 Instalar", "install_proxydt")),
 		markup.Row(markup.Data("🗑️ Desinstalar", "uninstall_proxydt")),
-		markup.Row(markup.Data("🔙 Volver", "menu_protocols")),
+		markup.Row(markup.Data("🔙 Back", "menu_protocols")),
 	)
-	return SafeEditCtx(c, b, "🌐 <b>Gestión de ProxyDT</b>\n\n¿Qué deseas hacer?", markup)
+	return SafeEditCtx(c, b, "🌐 <b>ProxyDT Management</b>\n\nWhat would you like to do?", markup)
 }
 
 // Handlers de Desinstalación
 func handleUninstallProtocol(c tele.Context, b *tele.Bot, proto string) error {
 	chatID := c.Chat().ID
 	if !isFullAdmin(chatID) {
-		return c.Respond(&tele.CallbackResponse{Text: "⛔ Solo el SuperAdmin (o Admin con Acceso Total) puede desinstalar protocolos.", ShowAlert: true})
+		return c.Respond(&tele.CallbackResponse{Text: "⛔ Only the SuperAdmin (or Admin with Full Access) can uninstall protocols.", ShowAlert: true})
 	}
 
 	SafeEditCtx(c, b, fmt.Sprintf("⏳ <i>Desinstalando %s...</i>", proto), nil)
@@ -283,7 +283,7 @@ func handleUninstallProtocol(c tele.Context, b *tele.Bot, proto string) error {
 	}
 
 	if err != nil {
-		return c.Edit(fmt.Sprintf("❌ <b>Error al desinstalar %s:</b>\n%v", proto, err), tele.ModeHTML)
+		return c.Edit(fmt.Sprintf("❌ <b>Error uninstalling %s:</b>\n%v", proto, err), tele.ModeHTML)
 	}
 
 	db.Save(data)
@@ -291,8 +291,8 @@ func handleUninstallProtocol(c tele.Context, b *tele.Bot, proto string) error {
 		vpn.SyncDNSDist()
 	}
 	markup := &tele.ReplyMarkup{}
-	markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
-	return c.Edit(fmt.Sprintf("✅ <b>%s desinstalado correctamente.</b>", proto), markup, tele.ModeHTML)
+	markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
+	return c.Edit(fmt.Sprintf("✅ <b>%s uninstalled successfully.</b>", proto), markup, tele.ModeHTML)
 }
 
 // Instaladores (Interacciones base)
@@ -307,7 +307,7 @@ func handleInstallSlowDNS(c tele.Context, b *tele.Bot, lastMsg *tele.Message) er
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data("❌ Cancelar", "cancelar_accion")))
 
-	b.Edit(lastMsg, "🐢 <b>Instalador de SlowDNS / Noiz DNS</b>\n\n🌍 <i>Escribe el subdominio (NS) que ya tengas apuntado a este servidor:</i>", markup, tele.ModeHTML)
+	b.Edit(lastMsg, "🐢 <b>SlowDNS / Noiz DNS Installer</b>\n\n🌍 <i>Enter the subdomain (NS) already pointing to this server:</i>", markup, tele.ModeHTML)
 	return nil
 }
 
@@ -322,7 +322,7 @@ func handleInstallVayDNS(c tele.Context, b *tele.Bot, lastMsg *tele.Message) err
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data("❌ Cancelar", "cancelar_accion")))
 
-	b.Edit(lastMsg, "🚀 <b>Instalador de VayDNS</b>\n\n🌍 <i>Escribe el subdominio (NS) que ya tengas apuntado a este servidor:</i>", markup, tele.ModeHTML)
+	b.Edit(lastMsg, "🚀 <b>VayDNS Installer</b>\n\n🌍 <i>Enter the subdomain (NS) already pointing to this server:</i>", markup, tele.ModeHTML)
 	return nil
 }
 
@@ -336,7 +336,7 @@ func handleInstallSlipstream(c tele.Context, b *tele.Bot, lastMsg *tele.Message)
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data("❌ Cancelar", "cancelar_accion")))
 
-	b.Edit(lastMsg, "🌊 <b>Instalador de Slipstream</b>\n\n🌍 <i>Escribe el dominio (o subdominio NS) para el túnel QUIC:</i>", markup, tele.ModeHTML)
+	b.Edit(lastMsg, "🌊 <b>Slipstream Installer</b>\n\n🌍 <i>Enter the domain (or NS subdomain) for the QUIC tunnel:</i>", markup, tele.ModeHTML)
 	return nil
 }
 
@@ -344,35 +344,35 @@ func handleInstallZivpn(c tele.Context, b *tele.Bot, lastMsg *tele.Message) erro
 	data, _ := db.Load()
 	if data.UDPCustom {
 		markup := &tele.ReplyMarkup{}
-		markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
-		return c.Edit("⚠️ <b>Conflicto de Protocolo</b>\n\nNo puedes instalar <b>ZiVPN</b> mientras <b>UDP Custom</b> esté activo. Por favor, desinstala UDP Custom primero.", markup, tele.ModeHTML)
+		markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
+		return c.Edit("⚠️ <b>Protocol Conflict</b>\n\nYou cannot install <b>ZiVPN</b> while <b>UDP Custom</b> is active. Please uninstall UDP Custom first.", markup, tele.ModeHTML)
 	}
 
 	chatID := c.Chat().ID
 	delete(UserSteps, chatID)
 
-	b.Edit(lastMsg, "⏳ <i>Instalando ZiVPN (UDP Custom) en puerto automático 5667...</i>", tele.ModeHTML)
+	b.Edit(lastMsg, "⏳ <i>Installing ZiVPN (UDP Custom) on automatic port 5667...</i>", tele.ModeHTML)
 
 	err := vpn.InstallZivpn("5667")
 	if err != nil {
 		markup := &tele.ReplyMarkup{}
-		markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
-		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar ZiVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+		markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
+		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing ZiVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 		return nil
 	}
 
-	res := "✅ <b>ZiVPN Instalado Correctamente</b>\n"
+	res := "✅ <b>ZiVPN Installed Successfully</b>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "⚙️ <b>Puerto UDP:</b> <code>5667</code>\n"
+	res += "⚙️ <b>UDP Port:</b> <code>5667</code>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "<i>El servicio udp-custom ya está activo.</i>"
+	res += "<i>The udp-custom service is now active.</i>"
 
 	data, _ = db.Load()
 	data.Zivpn = true
 	db.Save(data)
 
 	markup := &tele.ReplyMarkup{}
-	markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
+	markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
 	b.Edit(lastMsg, res, markup, tele.ModeHTML)
 	return nil
 }
@@ -381,31 +381,31 @@ func handleInstallBadVPN(c tele.Context, b *tele.Bot, lastMsg *tele.Message) err
 	chatID := c.Chat().ID
 	delete(UserSteps, chatID)
 
-	b.Edit(lastMsg, "⏳ <i>Instalando BadVPN (UDPGW) en puertos 7100, 7200, 7300...</i>", tele.ModeHTML)
+	b.Edit(lastMsg, "⏳ <i>Installing BadVPN (UDPGW) on ports 7100, 7200, 7300...</i>", tele.ModeHTML)
 
 	err := vpn.InstallBadVPN("7300")
 	if err != nil {
 		markup := &tele.ReplyMarkup{}
-		markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
-		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar BadVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+		markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
+		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing BadVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 		return nil
 	}
 
-	res := "✅ <b>BadVPN Instalado Correctamente</b>\n"
+	res := "✅ <b>BadVPN Installed Successfully</b>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "⚙️ <b>Puerto 1:</b> <code>127.0.0.1:7100</code>\n"
-	res += "⚙️ <b>Puerto 2:</b> <code>127.0.0.1:7200</code>\n"
-	res += "⚙️ <b>Puerto 3:</b> <code>127.0.0.1:7300</code>\n"
+	res += "⚙️ <b>Port 1:</b> <code>127.0.0.1:7100</code>\n"
+	res += "⚙️ <b>Port 2:</b> <code>127.0.0.1:7200</code>\n"
+	res += "⚙️ <b>Port 3:</b> <code>127.0.0.1:7300</code>\n"
 	res += "👥 <b>Max Clients:</b> <code>500</code>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "<i>El demonio udpgw ya está escuchando en los 3 puertos.</i>"
+	res += "<i>The udpgw daemon is now listening on all 3 ports.</i>"
 
 	data, _ := db.Load()
 	data.BadVPN = true
 	db.Save(data)
 
 	markup := &tele.ReplyMarkup{}
-	markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
+	markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
 	b.Edit(lastMsg, res, markup, tele.ModeHTML)
 	return nil
 }
@@ -417,7 +417,7 @@ func handleInstallFalcon(c tele.Context, b *tele.Bot, lastMsg *tele.Message) err
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data("❌ Cancelar", "cancelar_accion")))
 
-	b.Edit(lastMsg, "🦅 <b>Instalador de Falcon Proxy</b>\n\n⚙️ <i>Escribe el puerto de escucha (Ej: 8080):</i>", markup, tele.ModeHTML)
+	b.Edit(lastMsg, "🦅 <b>Falcon Proxy Installer</b>\n\n⚙️ <i>Enter the listening port (e.g. 8080):</i>", markup, tele.ModeHTML)
 	return nil
 }
 
@@ -425,22 +425,22 @@ func handleInstallSSL(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error 
 	data, _ := db.Load()
 	if !data.BadVPN {
 		markup := &tele.ReplyMarkup{}
-		markup.Inline(markup.Row(markup.Data("🔙 Volver", "submenu_ssl")))
-		b.Edit(lastMsg, "⚠️ <b>Requisito Faltante</b>\n\nNo puedes instalar <b>HAProxy (SSL Tunnel)</b> sin tener <b>BadVPN</b> previamente instalado. HAProxy depende de BadVPN para reenviar el tráfico de juegos online correctamente.\n\nPor favor instala BadVPN primero.", markup, tele.ModeHTML)
+		markup.Inline(markup.Row(markup.Data("🔙 Back", "submenu_ssl")))
+		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>HAProxy (SSL Tunnel)</b> without <b>BadVPN</b> installed first. HAProxy relies on BadVPN to forward online gaming traffic correctly.\n\nPlease install BadVPN first.", markup, tele.ModeHTML)
 		return nil
 	}
 
 	chatID := c.Chat().ID
 	delete(UserSteps, chatID)
 
-	b.Edit(lastMsg, "⏳ <b>Instalando HAProxy Multi-Protocolo...</b>\n\n<i>Configurando puertos 443, 80, 8080 + proxy SSH WebSocket interno (10015).\nEsto soporta juegos, VoIP y streaming.\nPor favor espera...</i>", tele.ModeHTML)
+	b.Edit(lastMsg, "⏳ <b>Installing multi-protocol HAProxy...</b>\n\n<i>Configuring ports 443, 80, 8080 plus the internal SSH WebSocket proxy (10015).\nThis supports gaming, VoIP and streaming.\nPlease wait...</i>", tele.ModeHTML)
 
 	err := vpn.InstallSSLTunnel("443")
 	markup := &tele.ReplyMarkup{}
-	markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
+	markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
 
 	if err != nil {
-		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar HAProxy:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing HAProxy:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 		return nil
 	}
 
@@ -451,8 +451,8 @@ func handleInstallSSL(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error 
 	res += "🔓 <b>HTTP/WS:</b>  <code>" + ip + ":80</code>\n"
 	res += "🔓 <b>Alt:</b>      <code>" + ip + ":8080</code>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "🎮 <b>Para Juegos:</b> BadVPN UDPGW = <code>7300</code>\n"
-	res += "<i>El tráfico fluye: App → HAProxy(443) → SSH-WS(10015) → SSH → BadVPN → Internet</i>"
+	res += "🎮 <b>For Gaming:</b> BadVPN UDPGW = <code>7300</code>\n"
+	res += "<i>Traffic flows: App → HAProxy(443) → SSH-WS(10015) → SSH → BadVPN → Internet</i>"
 
 	data, _ = db.Load()
 	data.SSLTunnel = "443"
@@ -469,14 +469,14 @@ func handleInstallDropbear(c tele.Context, b *tele.Bot, lastMsg *tele.Message) e
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data("❌ Cancelar", "cancelar_accion")))
 
-	b.Edit(lastMsg, "🐻 <b>Instalador de Dropbear</b>\n\n⚙️ <i>Escribe los puertos de escucha separados por coma (Ej: 143,109):</i>", markup, tele.ModeHTML)
+	b.Edit(lastMsg, "🐻 <b>Dropbear Installer</b>\n\n⚙️ <i>Enter the listening ports separated by commas (e.g. 143,109):</i>", markup, tele.ModeHTML)
 	return nil
 }
 
 func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error {
 	chatID := c.Chat().ID
 	if !isFullAdmin(chatID) {
-		return c.Respond(&tele.CallbackResponse{Text: "⛔ Solo el SuperAdmin (o Admin con Acceso Total) puede instalar protocolos.", ShowAlert: true})
+		return c.Respond(&tele.CallbackResponse{Text: "⛔ Only the SuperAdmin (or Admin with Full Access) can install protocols.", ShowAlert: true})
 	}
 
 	data, _ := db.Load()
@@ -485,10 +485,10 @@ func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error
 	if data.CloudflareDomain == "" {
 		markup := &tele.ReplyMarkup{}
 		markup.Inline(
-			markup.Row(markup.Data("⚙️ Ajustes Pro", "menu_admins")),
-			markup.Row(markup.Data("🔙 Volver", "submenu_xray")),
+			markup.Row(markup.Data("⚙️ Pro Settings", "menu_admins")),
+			markup.Row(markup.Data("🔙 Back", "submenu_xray")),
 		)
-		b.Edit(lastMsg, "⚠️ <b>Requisito Faltante</b>\n\nNo puedes instalar <b>Xray</b> sin antes configurar un <b>Dominio de Cloudflare</b> en los <i>Ajustes Pro</i> del menú administrador.\n\nEl protocolo VMess WebSocket requiere un dominio para generar los links de conexión.", markup, tele.ModeHTML)
+		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>Xray</b> without first configuring a <b>Cloudflare Domain</b> in <i>Pro Settings</i> of the admin menu.\n\nThe VMess WebSocket protocol requires a domain to generate connection links.", markup, tele.ModeHTML)
 		return nil
 	}
 
@@ -496,20 +496,20 @@ func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error
 		markup := &tele.ReplyMarkup{}
 		markup.Inline(
 			markup.Row(markup.Data("📜 WS TLS HTTP", "submenu_ssl")),
-			markup.Row(markup.Data("🔙 Volver", "submenu_xray")),
+			markup.Row(markup.Data("🔙 Back", "submenu_xray")),
 		)
-		b.Edit(lastMsg, "⚠️ <b>Requisito Faltante</b>\n\nNo puedes instalar <b>Xray</b> sin tener <b>HAProxy (SSL Tunnel)</b> instalado. HAProxy es el encargado de recibir el tráfico en el puerto 443 y redirigirlo a Xray.", markup, tele.ModeHTML)
+		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>Xray</b> without <b>HAProxy (SSL Tunnel)</b> installed. HAProxy receives traffic on port 443 and forwards it to Xray.", markup, tele.ModeHTML)
 		return nil
 	}
 
-	b.Edit(lastMsg, "⏳ <b>Instalando Xray-core...</b>\n\n<i>Descargando núcleo Xray y configurando VMess sobre WebSocket en puerto 10002.\nEsto puede tardar unos segundos...</i>", tele.ModeHTML)
+	b.Edit(lastMsg, "⏳ <b>Installing Xray-core...</b>\n\n<i>Downloading the Xray core and configuring VMess over WebSocket on port 10002.\nThis may take a few seconds...</i>", tele.ModeHTML)
 
 	err := vpn.InstallXray()
 	markup := &tele.ReplyMarkup{}
-	markup.Inline(markup.Row(markup.Data("🔙 Volver", "submenu_xray")))
+	markup.Inline(markup.Row(markup.Data("🔙 Back", "submenu_xray")))
 
 	if err != nil {
-		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar Xray:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+		b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing Xray:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 		return nil
 	}
 
@@ -518,13 +518,13 @@ func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error
 	data.Xray.Port = 10002
 	db.Save(data)
 
-	res := "✅ <b>Xray (VMess) Instalado Correctamente</b>\n"
+	res := "✅ <b>Xray (VMess) Installed Successfully</b>\n"
 	res += "━━━━━━━━━━━━━━\n"
 	res += "⚙️ <b>Protocolo:</b> <code>VMess + WebSocket</code>\n"
-	res += "⚙️ <b>Puerto Interno:</b> <code>10002</code>\n"
-	res += "🌍 <b>Dominio:</b> <code>" + data.CloudflareDomain + "</code>\n"
+	res += "⚙️ <b>Internal Port:</b> <code>10002</code>\n"
+	res += "🌍 <b>Domain:</b> <code>" + data.CloudflareDomain + "</code>\n"
 	res += "━━━━━━━━━━━━━━\n"
-	res += "<i>Ahora puedes comenzar a gestionar usuarios desde el menú de Xray.</i>"
+	res += "<i>You can now start managing users from the Xray menu.</i>"
 
 	b.Edit(lastMsg, res, markup, tele.ModeHTML)
 	return nil
@@ -537,14 +537,14 @@ func handleInstallProxyDT(c tele.Context, b *tele.Bot, lastMsg *tele.Message) er
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data("❌ Cancelar", "cancelar_accion")))
 
-	b.Edit(lastMsg, "🌐 <b>Instalador de ProxyDT (Cracked)</b>\n\n⚙️ <i>Escribe el puerto de escucha (Ej: 80 o 8080):</i>", markup, tele.ModeHTML)
+	b.Edit(lastMsg, "🌐 <b>ProxyDT Installer (Cracked)</b>\n\n⚙️ <i>Enter the listening port (e.g. 80 or 8080):</i>", markup, tele.ModeHTML)
 	return nil
 }
 
 // Interceptor secuencial para los módulos VPN
 func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *tele.Bot, lastMsg *tele.Message) error {
 	markup := &tele.ReplyMarkup{}
-	markup.Inline(markup.Row(markup.Data("🔙 Volver", "menu_protocols")))
+	markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
 
 	switch step {
 	case "awaiting_vpn_broadcast":
@@ -581,7 +581,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if _, err := strconv.ParseInt(id, 10, 64); err != nil {
 			markupRetry := &tele.ReplyMarkup{}
 			markupRetry.Inline(markupRetry.Row(markupRetry.Data("❌ Cancelar", "menu_admins")))
-			b.Edit(lastMsg, "❌ <b>ID Inválido:</b> Debe ser un número. Intenta de nuevo:", markupRetry, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Invalid ID:</b> Must be a number. Try again:", markupRetry, tele.ModeHTML)
 			return nil
 		}
 
@@ -591,7 +591,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		markupCancel := &tele.ReplyMarkup{}
 		markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "menu_admins")))
-		b.Edit(lastMsg, fmt.Sprintf("✅ ID: <code>%s</code>\n\n📝 <b>Paso 2/2:</b> Escribe un <b>nombre o alias</b> para identificar a este admin:\n\nEjemplo: <code>Carlos</code>, <code>Revendedor Lima</code>", id), markupCancel, tele.ModeHTML)
+		b.Edit(lastMsg, fmt.Sprintf("✅ ID: <code>%s</code>\n\n📝 <b>Step 2/2:</b> Enter a <b>name or alias</b> to identify this admin:\n\nExample: <code>Carlos</code>, <code>Reseller Lima</code>", id), markupCancel, tele.ModeHTML)
 		return nil
 
 	case "awaiting_vpn_admin_alias":
@@ -604,7 +604,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		markupCancel := &tele.ReplyMarkup{}
 		markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "menu_admins")))
-		b.Edit(lastMsg, fmt.Sprintf("✅ Alias: <code>%s</code>\n\n📅 <b>Paso 3/3:</b> ¿Cuántos días de acceso tendrá este administrador?\n\nEjemplo: <code>30</code> para un mes, <code>365</code> para un año.", alias), markupCancel, tele.ModeHTML)
+		b.Edit(lastMsg, fmt.Sprintf("✅ Alias: <code>%s</code>\n\n📅 <b>Step 3/3:</b> How many days of access will this administrator have?\n\nExample: <code>30</code> for one month, <code>365</code> for one year.", alias), markupCancel, tele.ModeHTML)
 		return nil
 
 	case "awaiting_vpn_admin_days":
@@ -613,7 +613,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if err != nil || days <= 0 {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "menu_admins")))
-			b.Edit(lastMsg, "⚠️ <b>Error:</b> Por favor ingresa un número de días válido y mayor a 0.\n\n📅 ¿Cuántos días de acceso tendrá este administrador?", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "⚠️ <b>Error:</b> Please enter a valid number of days greater than 0.\n\n📅 How many days of access will this administrator have?", markupCancel, tele.ModeHTML)
 			return nil
 		}
 
@@ -623,13 +623,13 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		SetUserStep(chatID, "") // Keep TempData for access type callback
 
 		if id == "" {
-			b.Edit(lastMsg, "❌ <b>Error:</b> No se encontró el ID temporal. Intenta de nuevo desde el menú.", markup, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Error:</b> Temporary ID not found. Please try again from the menu.", markup, tele.ModeHTML)
 			return nil
 		}
 
 		markupAccess := &tele.ReplyMarkup{}
-		btnNormal := markupAccess.Data("👤 Acceso Normal (Limitado)", "add_admin_normal")
-		btnFull := markupAccess.Data("👑 Acceso Total (SuperAdmin)", "add_admin_full")
+		btnNormal := markupAccess.Data("👤 Normal Access (Limited)", "add_admin_normal")
+		btnFull := markupAccess.Data("👑 Full Access (SuperAdmin)", "add_admin_full")
 		btnCancel := markupAccess.Data("❌ Cancelar", "menu_admins")
 		
 		markupAccess.Inline(
@@ -638,7 +638,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 			markupAccess.Row(btnCancel),
 		)
 
-		b.Edit(lastMsg, fmt.Sprintf("✅ <b>Días asignados:</b> %d\n\n👤 <b>Alias:</b> %s\n🆔 <b>ID:</b> <code>%s</code>\n\n🛡️ <b>Paso Final:</b> Selecciona el nivel de acceso para este administrador:", days, alias, id), markupAccess, tele.ModeHTML)
+		b.Edit(lastMsg, fmt.Sprintf("✅ <b>Days assigned:</b> %d\n\n👤 <b>Alias:</b> %s\n🆔 <b>ID:</b> <code>%s</code>\n\n🛡️ <b>Final Step:</b> Select the access level for this administrator:", days, alias, id), markupAccess, tele.ModeHTML)
 		return nil
 
 	case "awaiting_rename_admin_alias":
@@ -647,11 +647,11 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		DeleteUserStep(chatID)
 
 		if alias == "" {
-			b.Edit(lastMsg, "❌ <b>El alias no puede estar vacío.</b>", markup, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Alias cannot be empty.</b>", markup, tele.ModeHTML)
 			return nil
 		}
 		if id == "" {
-			b.Edit(lastMsg, "❌ <b>Error:</b> No se encontró el ID temporal. Intenta de nuevo.", markup, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Error:</b> Temporary ID not found. Please try again.", markup, tele.ModeHTML)
 			return nil
 		}
 
@@ -663,7 +663,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		})
 
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "menu_admins")))
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "menu_admins")))
 		b.Edit(lastMsg, fmt.Sprintf("✅ <b>Admin Renombrado</b>\n\n👤 <b>Nuevo Alias:</b> %s\n🆔 <b>ID:</b> <code>%s</code>", alias, id), markupBack, tele.ModeHTML)
 		return nil
 
@@ -676,7 +676,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 			return nil
 		})
 
-		b.Edit(lastMsg, "✅ <b>Información extra actualizada correctamente.</b>", markup, tele.ModeHTML)
+		b.Edit(lastMsg, "✅ <b>Extra information updated successfully.</b>", markup, tele.ModeHTML)
 		return nil
 
 	case "awaiting_vpn_cloudflare":
@@ -707,8 +707,8 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		DeleteUserStep(chatID)
 		go sys.RefreshAllBanners()
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "edit_promo_menu")))
-		b.Edit(lastMsg, "✅ <b>Texto Promocional actualizado.</b>\nSe aplicó a todos los banners individuales.", markupBack, tele.ModeHTML)
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "edit_promo_menu")))
+		b.Edit(lastMsg, "✅ <b>Promotional text updated.</b>\nApplied to all individual banners.", markupBack, tele.ModeHTML)
 		return nil
 
 	case "awaiting_promo_channel":
@@ -719,8 +719,8 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		DeleteUserStep(chatID)
 		go sys.RefreshAllBanners()
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "edit_promo_menu")))
-		b.Edit(lastMsg, "✅ <b>Canal Promo actualizado.</b>\nSe aplicó a todos los banners individuales.", markupBack, tele.ModeHTML)
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "edit_promo_menu")))
+		b.Edit(lastMsg, "✅ <b>Promo channel updated.</b>\nApplied to all individual banners.", markupBack, tele.ModeHTML)
 		return nil
 
 	case "awaiting_promo_support":
@@ -731,8 +731,8 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		DeleteUserStep(chatID)
 		go sys.RefreshAllBanners()
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "edit_promo_menu")))
-		b.Edit(lastMsg, "✅ <b>Soporte Promo actualizado.</b>\nSe aplicó a todos los banners individuales.", markupBack, tele.ModeHTML)
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "edit_promo_menu")))
+		b.Edit(lastMsg, "✅ <b>Promo support updated.</b>\nApplied to all individual banners.", markupBack, tele.ModeHTML)
 		return nil
 
 	case "awaiting_promo_botname":
@@ -743,8 +743,8 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		DeleteUserStep(chatID)
 		go sys.RefreshAllBanners()
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "edit_promo_menu")))
-		b.Edit(lastMsg, "✅ <b>Nombre del Bot actualizado.</b>\nSe aplicó a todos los banners individuales.", markupBack, tele.ModeHTML)
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "edit_promo_menu")))
+		b.Edit(lastMsg, "✅ <b>Bot name updated.</b>\nApplied to all individual banners.", markupBack, tele.ModeHTML)
 		return nil
 
 	case "awaiting_vpn_ssh_banner":
@@ -757,11 +757,11 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		// Aplicar al sistema
 		err := sys.SetSSHBanner(banner)
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "edit_banner")))
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "edit_banner")))
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("⚠️ <b>Banner guardado en DB pero error al aplicar:</b>\n%v", err), markupBack, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("⚠️ <b>Banner saved to the database but failed to apply:</b>\n%v", err), markupBack, tele.ModeHTML)
 		} else {
-			b.Edit(lastMsg, "✅ <b>Banner SSH actualizado y aplicado al sistema.</b>", markupBack, tele.ModeHTML)
+			b.Edit(lastMsg, "✅ <b>SSH Banner updated and applied to the system.</b>", markupBack, tele.ModeHTML)
 		}
 		return nil
 
@@ -770,7 +770,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if err != nil || val <= 0 {
 			markupRetry := &tele.ReplyMarkup{}
 			markupRetry.Inline(markupRetry.Row(markupRetry.Data("❌ Cancelar", "edit_quotas")))
-			SafeEdit(chatID, b, lastMsg, "⚠️ Valor inválido. Escribe un número mayor a 0:", markupRetry)
+			SafeEdit(chatID, b, lastMsg, "⚠️ Invalid value. Enter a number greater than 0:", markupRetry)
 			return nil
 		}
 		DeleteUserStep(chatID)
@@ -780,40 +780,40 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 			switch step {
 			case "awaiting_quota_days_public":
 				data.MaxDaysPublic = val
-				label = fmt.Sprintf("Días Público → %d", val)
+				label = fmt.Sprintf("Public Days → %d", val)
 			case "awaiting_quota_limit_public":
 				data.MaxLimitPublic = val
-				label = fmt.Sprintf("Dispositivos Público → %d", val)
+				label = fmt.Sprintf("Public Devices → %d", val)
 			case "awaiting_quota_days_admin":
 				data.MaxDaysAdmin = val
-				label = fmt.Sprintf("Días Admin → %d", val)
+				label = fmt.Sprintf("Admin Days → %d", val)
 			case "awaiting_quota_limit_admin":
 				data.MaxLimitAdmin = val
-				label = fmt.Sprintf("Dispositivos Admin → %d", val)
+				label = fmt.Sprintf("Admin Devices → %d", val)
 			case "awaiting_quota_xray_public":
 				data.MaxXrayPublic = val
-				label = fmt.Sprintf("VMess Público → %d cuentas", val)
+				label = fmt.Sprintf("VMess Public → %d accounts", val)
 			case "awaiting_quota_xray_admin":
 				data.MaxXrayAdmin = val
-				label = fmt.Sprintf("VMess Admin → %d cuentas", val)
+				label = fmt.Sprintf("VMess Admin → %d accounts", val)
 			case "awaiting_quota_ssh_public":
 				data.MaxSSHPublic = val
-				label = fmt.Sprintf("Límite SSH Público → %d cuentas", val)
+				label = fmt.Sprintf("SSH Limit Public → %d accounts", val)
 			case "awaiting_quota_ssh_admin":
 				data.MaxSSHAdmin = val
-				label = fmt.Sprintf("Límite SSH Admin → %d cuentas", val)
+				label = fmt.Sprintf("SSH Limit Admin → %d accounts", val)
 			case "awaiting_quota_zivpn_public":
 				data.MaxZivpnPublic = val
-				label = fmt.Sprintf("Límite ZiVPN Público → %d cuentas", val)
+				label = fmt.Sprintf("ZiVPN Limit Public → %d accounts", val)
 			case "awaiting_quota_zivpn_admin":
 				data.MaxZivpnAdmin = val
-				label = fmt.Sprintf("Límite ZiVPN Admin → %d cuentas", val)
+				label = fmt.Sprintf("ZiVPN Limit Admin → %d accounts", val)
 			}
 			return nil
 		})
 
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "edit_quotas")))
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "edit_quotas")))
 		SafeEdit(chatID, b, lastMsg, fmt.Sprintf("✅ <b>Cuota actualizada:</b> %s", label), markupBack)
 		return nil
 
@@ -822,7 +822,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if _, err := strconv.ParseInt(id, 10, 64); err != nil {
 			markupRetry := &tele.ReplyMarkup{}
 			markupRetry.Inline(markupRetry.Row(markupRetry.Data("❌ Cancelar", "menu_bans")))
-			SafeEdit(chatID, b, lastMsg, "❌ <b>ID Inválido:</b> Debe ser un número. Intenta de nuevo:", markupRetry)
+			SafeEdit(chatID, b, lastMsg, "❌ <b>Invalid ID:</b> Must be a number. Try again:", markupRetry)
 			return nil
 		}
 		SetTempValue(chatID, "ban_target_id", id)
@@ -830,7 +830,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		
 		markupCancel := &tele.ReplyMarkup{}
 		markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "menu_bans")))
-		SafeEdit(chatID, b, lastMsg, fmt.Sprintf("✅ ID: <code>%s</code>\n\n📝 <b>Paso 2/3:</b> Escribe el <b>Nombre o Alias</b> del usuario para identificarlo en la lista:", id), markupCancel)
+		SafeEdit(chatID, b, lastMsg, fmt.Sprintf("✅ ID: <code>%s</code>\n\n📝 <b>Step 2/3:</b> Enter the <b>Name or Alias</b> of the user to identify them in the list:", id), markupCancel)
 		return nil
 
 	case "awaiting_ban_name":
@@ -843,7 +843,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		
 		markupCancel := &tele.ReplyMarkup{}
 		markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "menu_bans")))
-		SafeEdit(chatID, b, lastMsg, fmt.Sprintf("✅ Nombre: <b>%s</b>\n\n📝 <b>Paso 3/3:</b> Escribe el <b>Motivo del Ban</b> (ej: Spam, No pago, etc.):\n\n<i>O escribe 'Ninguno' para omitir.</i>", name), markupCancel)
+		SafeEdit(chatID, b, lastMsg, fmt.Sprintf("✅ Name: <b>%s</b>\n\n📝 <b>Step 3/3:</b> Enter the <b>Ban Reason</b> (e.g. Spam, Non-payment, etc.):\n\n<i>Or type 'None' to skip.</i>", name), markupCancel)
 		return nil
 
 	case "awaiting_ban_reason":
@@ -852,7 +852,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		name := GetTempValue(chatID, "ban_target_name")
 		DeleteUserStep(chatID)
 
-		if reason == "" || strings.ToLower(reason) == "ninguno" {
+		if reason == "" || strings.ToLower(reason) == "none" {
 			reason = "No especificado"
 		}
 
@@ -866,8 +866,8 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		})
 
 		markupBack := &tele.ReplyMarkup{}
-		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Volver", "menu_bans")))
-		SafeEdit(chatID, b, lastMsg, fmt.Sprintf("✅ <b>Usuario Baneado Exitosamente</b>\n\n👤 <b>%s</b>\n🆔 ID: <code>%s</code>\n📝 Motivo: <i>%s</i>\n\nEl usuario ya no podrá interactuar con el bot.", name, id, reason), markupBack)
+		markupBack.Inline(markupBack.Row(markupBack.Data("🔙 Back", "menu_bans")))
+		SafeEdit(chatID, b, lastMsg, fmt.Sprintf("✅ <b>User Banned Successfully</b>\n\n👤 <b>%s</b>\n🆔 ID: <code>%s</code>\n📝 Reason: <i>%s</i>\n\nThe user can no longer interact with the bot.", name, id, reason), markupBack)
 		return nil
 
 	case "awaiting_vpn_slowdns_domain":
@@ -875,7 +875,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if text == data.VayDNS.NS || text == data.Slipstream.NS {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-			b.Edit(lastMsg, "⚠️ <b>Ese dominio ya está en uso</b> por otro protocolo (VayDNS o Slipstream).\nPor favor, ingresa un dominio (NS) distinto para SlowDNS / Noiz DNS:", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "⚠️ <b>That domain is already in use</b> by another protocol (VayDNS or Slipstream).\nPlease enter a different domain (NS) for SlowDNS / Noiz DNS:", markupCancel, tele.ModeHTML)
 			return nil
 		}
 		SetTempValue(chatID, "domain", text)
@@ -883,7 +883,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		markupCancel := &tele.ReplyMarkup{}
 		markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-		b.Edit(lastMsg, "⚙️ <i>¿A qué puerto local quieres redirigir SlowDNS / Noiz DNS? (Ej: 110, 22 o 443):</i>", markupCancel, tele.ModeHTML)
+		b.Edit(lastMsg, "⚙️ <i>Which local port should SlowDNS / Noiz DNS forward to? (e.g. 110, 22 or 443):</i>", markupCancel, tele.ModeHTML)
 		return nil
 
 	case "awaiting_vpn_slowdns_port":
@@ -892,20 +892,20 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Descargando binarios e instalando SlowDNS / Noiz DNS... (Tomará unos segundos)</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Downloading binaries and installing SlowDNS / Noiz DNS... (This takes a few seconds)</i>", tele.ModeHTML)
 
 		pubKey, err := vpn.InstallSlowDNS(domain, port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar SlowDNS / Noiz DNS:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing SlowDNS / Noiz DNS:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
-		res := "✅ <b>SlowDNS / Noiz DNS Instalado Correctamente</b>\n"
+		res := "✅ <b>SlowDNS / Noiz DNS Installed Successfully</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
 		res += fmt.Sprintf("🌍 <b>NS:</b> <code>%s</code>\n", domain)
 		res += fmt.Sprintf("🔑 <b>Pub Key:</b> <code>%s</code>\n", pubKey)
 		res += "━━━━━━━━━━━━━━\n"
-		res += "<i>El servicio ya está activo en Systemd.</i>"
+		res += "<i>The service is now active in Systemd.</i>"
 
 		// Guardar estado
 		data, _ := db.Load()
@@ -923,7 +923,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if text == data.SlowDNS.NS || text == data.Slipstream.NS {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-			b.Edit(lastMsg, "⚠️ <b>Ese dominio ya está en uso</b> por otro protocolo (SlowDNS / Noiz DNS o Slipstream).\nPor favor, ingresa un dominio (NS) distinto para VayDNS:", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "⚠️ <b>That domain is already in use</b> by another protocol (SlowDNS / Noiz DNS or Slipstream).\nPlease enter a different domain (NS) for VayDNS:", markupCancel, tele.ModeHTML)
 			return nil
 		}
 		SetTempValue(chatID, "domain", text)
@@ -931,7 +931,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		markupCancel := &tele.ReplyMarkup{}
 		markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-		b.Edit(lastMsg, "⚙️ <i>¿A qué puerto local quieres redirigir VayDNS? (Ej: 110, 22 o 443):</i>", markupCancel, tele.ModeHTML)
+		b.Edit(lastMsg, "⚙️ <i>Which local port should VayDNS forward to? (e.g. 110, 22 or 443):</i>", markupCancel, tele.ModeHTML)
 		return nil
 
 	case "awaiting_vpn_vaydns_port":
@@ -940,20 +940,20 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Descargando binarios e instalando VayDNS... (Tomará unos segundos)</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Downloading binaries and installing VayDNS... (This takes a few seconds)</i>", tele.ModeHTML)
 
 		pubKey, err := vpn.InstallVayDNS(domain, port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar VayDNS:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing VayDNS:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
-		res := "✅ <b>VayDNS Instalado Correctamente</b>\n"
+		res := "✅ <b>VayDNS Installed Successfully</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
 		res += fmt.Sprintf("🌍 <b>NS:</b> <code>%s</code>\n", domain)
 		res += fmt.Sprintf("🔑 <b>Pub Key:</b> <code>%s</code>\n", pubKey)
 		res += "━━━━━━━━━━━━━━\n"
-		res += "<i>El servicio ya está activo en Systemd.</i>"
+		res += "<i>The service is now active in Systemd.</i>"
 
 		// Guardar estado
 		data, _ := db.Load()
@@ -971,7 +971,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if text == data.SlowDNS.NS || text == data.VayDNS.NS {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-			b.Edit(lastMsg, "⚠️ <b>Ese dominio ya está en uso</b> por otro protocolo (SlowDNS / Noiz DNS o VayDNS).\nPor favor, ingresa un dominio distinto para Slipstream:", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "⚠️ <b>That domain is already in use</b> by another protocol (SlowDNS / Noiz DNS or VayDNS).\nPlease enter a different domain for Slipstream:", markupCancel, tele.ModeHTML)
 			return nil
 		}
 		SetTempValue(chatID, "domain", text)
@@ -979,7 +979,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		markupCancel := &tele.ReplyMarkup{}
 		markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-		b.Edit(lastMsg, "⚙️ <i>¿A qué puerto local quieres redirigir Slipstream? (Ej: 110, 22 o 443):</i>", markupCancel, tele.ModeHTML)
+		b.Edit(lastMsg, "⚙️ <i>Which local port should Slipstream forward to? (e.g. 110, 22 or 443):</i>", markupCancel, tele.ModeHTML)
 		return nil
 
 	case "awaiting_vpn_slipstream_port":
@@ -988,20 +988,20 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Descargando binarios y configurando TLS para Slipstream... (Tomará unos segundos)</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Downloading binaries and configuring TLS for Slipstream... (This takes a few seconds)</i>", tele.ModeHTML)
 
 		err := vpn.InstallSlipstream(domain, port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar Slipstream:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing Slipstream:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
-		res := "✅ <b>Slipstream Instalado Correctamente</b>\n"
+		res := "✅ <b>Slipstream Installed Successfully</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
-		res += fmt.Sprintf("🌍 <b>Dominio:</b> <code>%s</code>\n", domain)
-		res += fmt.Sprintf("⚙️ <b>Puerto:</b> <code>%s</code>\n", port)
+		res += fmt.Sprintf("🌍 <b>Domain:</b> <code>%s</code>\n", domain)
+		res += fmt.Sprintf("⚙️ <b>Port:</b> <code>%s</code>\n", port)
 		res += "━━━━━━━━━━━━━━\n"
-		res += "<i>El servicio QUIC ya está activo en UDP 53.</i>"
+		res += "<i>The QUIC service is now active on UDP 53.</i>"
 
 		// Guardar estado
 		data, _ := db.Load()
@@ -1016,24 +1016,24 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 	case "awaiting_vpn_zivpn_port":
 		port := text
 		if _, err := strconv.Atoi(port); err != nil {
-			b.Edit(lastMsg, "❌ <b>Puerto inválido.</b> Por favor, ingresa solo números (Ej: 7300).", markup, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Invalid port.</b> Please enter numbers only (e.g. 7300).", markup, tele.ModeHTML)
 			return nil
 		}
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Instalando ZiVPN (UDP Custom)...</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Installing ZiVPN (UDP Custom)...</i>", tele.ModeHTML)
 
 		err := vpn.InstallZivpn(port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar ZiVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing ZiVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
-		res := "✅ <b>ZiVPN Instalado Correctamente</b>\n"
+		res := "✅ <b>ZiVPN Installed Successfully</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
-		res += fmt.Sprintf("⚙️ <b>Puerto UDP:</b> <code>%s</code>\n", port)
+		res += fmt.Sprintf("⚙️ <b>UDP Port:</b> <code>%s</code>\n", port)
 		res += "━━━━━━━━━━━━━━\n"
-		res += "<i>El servicio udp-custom ya está activo.</i>"
+		res += "<i>The udp-custom service is now active.</i>"
 
 		// Guardar estado
 		data, _ := db.Load()
@@ -1046,24 +1046,24 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 	case "awaiting_vpn_badvpn_port":
 		port := text
 		if _, err := strconv.Atoi(port); err != nil {
-			b.Edit(lastMsg, "❌ <b>Puerto inválido.</b> Por favor, ingresa solo números (Ej: 7200).", markup, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Invalid port.</b> Please enter numbers only (e.g. 7200).", markup, tele.ModeHTML)
 			return nil
 		}
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Descargando e instalando BadVPN...</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Downloading and installing BadVPN...</i>", tele.ModeHTML)
 
 		err := vpn.InstallBadVPN(port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar BadVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing BadVPN:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
-		res := "✅ <b>BadVPN Instalado Correctamente</b>\n"
+		res := "✅ <b>BadVPN Installed Successfully</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
-		res += fmt.Sprintf("⚙️ <b>Puerto TCP:</b> <code>%s</code>\n", port)
+		res += fmt.Sprintf("⚙️ <b>TCP Port:</b> <code>%s</code>\n", port)
 		res += "━━━━━━━━━━━━━━\n"
-		res += "<i>El demonio udpgw ya está escuchando.</i>"
+		res += "<i>The udpgw daemon is now listening.</i>"
 
 		// Guardar estado
 		data, _ := db.Load()
@@ -1080,29 +1080,29 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if data.SSLTunnel != "" && (port == "80" || port == "443" || port == "8080" || port == data.SSLTunnel) {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-			b.Edit(lastMsg, "❌ <b>Puerto en uso por HAProxy (SSL Tunnel).</b>\n\nPor favor, ingresa un puerto diferente:", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Port already in use by HAProxy (SSL Tunnel).</b>\n\nPlease enter a different port:", markupCancel, tele.ModeHTML)
 			return nil
 		}
 		if data.SSHWebSocket && (port == "10015" || port == "2082") {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-			b.Edit(lastMsg, "❌ <b>Puerto en uso por SSH WebSocket.</b>\n\nPor favor, ingresa un puerto diferente:", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Port already in use by SSH WebSocket.</b>\n\nPlease enter a different port:", markupCancel, tele.ModeHTML)
 			return nil
 		}
 
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Instalando Falcon Proxy...</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Installing Falcon Proxy...</i>", tele.ModeHTML)
 		ver, err := vpn.InstallFalcon(port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar Falcon:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing Falcon:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
 		res := "✅ <b>Falcon Proxy Instalado</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
 		res += fmt.Sprintf("🦅 <b>Version:</b> <code>%s</code>\n", ver)
-		res += fmt.Sprintf("⚙️ <b>Puerto:</b> <code>%s</code>\n", port)
+		res += fmt.Sprintf("⚙️ <b>Port:</b> <code>%s</code>\n", port)
 		res += "━━━━━━━━━━━━━━\n"
 
 		// Guardar estado
@@ -1117,16 +1117,16 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		port := text
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Configurando SSL Tunnel (HAProxy)...</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Configuring SSL Tunnel (HAProxy)...</i>", tele.ModeHTML)
 		err := vpn.InstallSSLTunnel(port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar SSL Tunnel:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing SSL Tunnel:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
 		res := "✅ <b>SSL Tunnel Instalado</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
-		res += fmt.Sprintf("📜 <b>Puerto SSL:</b> <code>%s</code>\n", port)
+		res += fmt.Sprintf("📜 <b>SSL Port:</b> <code>%s</code>\n", port)
 		res += "━━━━━━━━━━━━━━\n"
 
 		// Guardar estado
@@ -1141,16 +1141,16 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		ports := text
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Configurando Dropbear (multi-puerto)...</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Configuring Dropbear (multi-port)...</i>", tele.ModeHTML)
 		err := vpn.InstallDropbear(ports)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar Dropbear:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing Dropbear:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
-		res := "✅ <b>Dropbear Instalado (Multi-Puerto)</b>\n"
+		res := "✅ <b>Dropbear Installed (Multi-Port)</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
-		res += fmt.Sprintf("🐻 <b>Puertos:</b> <code>%s</code>\n", ports)
+		res += fmt.Sprintf("🐻 <b>Ports:</b> <code>%s</code>\n", ports)
 		res += "🔧 <b>Buffer:</b> <code>65536</code>\n"
 		res += "━━━━━━━━━━━━━━\n"
 
@@ -1165,7 +1165,7 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 	case "awaiting_vpn_proxydt_port":
 		port := text
 		if _, err := strconv.Atoi(port); err != nil {
-			b.Edit(lastMsg, "❌ <b>Puerto inválido.</b> Por favor, ingresa solo números (Ej: 8080).", markup, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Invalid port.</b> Please enter numbers only (e.g. 8080).", markup, tele.ModeHTML)
 			return nil
 		}
 
@@ -1173,34 +1173,34 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		if data.SSLTunnel != "" && (port == "80" || port == "443" || port == "8080" || port == data.SSLTunnel) {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-			b.Edit(lastMsg, "❌ <b>Puerto en uso por HAProxy (SSL Tunnel).</b>\n\nPor favor, ingresa un puerto diferente:", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Port already in use by HAProxy (SSL Tunnel).</b>\n\nPlease enter a different port:", markupCancel, tele.ModeHTML)
 			return nil
 		}
 		if data.SSHWebSocket && (port == "10015" || port == "2082") {
 			markupCancel := &tele.ReplyMarkup{}
 			markupCancel.Inline(markupCancel.Row(markupCancel.Data("❌ Cancelar", "cancelar_accion")))
-			b.Edit(lastMsg, "❌ <b>Puerto en uso por SSH WebSocket.</b>\n\nPor favor, ingresa un puerto diferente:", markupCancel, tele.ModeHTML)
+			b.Edit(lastMsg, "❌ <b>Port already in use by SSH WebSocket.</b>\n\nPlease enter a different port:", markupCancel, tele.ModeHTML)
 			return nil
 		}
 
 		DeleteUserStep(chatID)
 
-		b.Edit(lastMsg, "⏳ <i>Instalando y configurando ProxyDT...</i>", tele.ModeHTML)
+		b.Edit(lastMsg, "⏳ <i>Installing and configuring ProxyDT...</i>", tele.ModeHTML)
 
 		if err := vpn.InstallProxyDT(); err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al instalar binario ProxyDT:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing the ProxyDT binary:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
 		err := vpn.OpenProxyDTPort(port)
 		if err != nil {
-			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error al abrir puerto ProxyDT:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
+			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error opening ProxyDT port:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
 		}
 
 		res := "✅ <b>ProxyDT Online</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
-		res += fmt.Sprintf("🌐 <b>Puerto:</b> <code>%s</code>\n", port)
+		res += fmt.Sprintf("🌐 <b>Port:</b> <code>%s</code>\n", port)
 		res += "━━━━━━━━━━━━━━\n"
 
 		// Guardar estado

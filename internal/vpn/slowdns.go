@@ -16,10 +16,11 @@ func InstallSlowDNS(domain, port string) (string, error) {
         binName = "dnstt-server-linux-386"
     }
 
+    // Both mirrors are architecture-aware; do not add arch-agnostic fallbacks
+    // or a wrong-arch binary will be installed (causing "Exec format error").
     mirrors := []string{
         "https://dnstt.network/" + binName,
         "https://github.com/bugfloyd/dnstt-deploy/raw/main/bin/" + binName,
-        "https://raw.githubusercontent.com/Dan3651/scripts/main/slowdns-server",
     }
 
     // Attempt Download
@@ -40,7 +41,7 @@ func InstallSlowDNS(domain, port string) (string, error) {
 	}
 
 	if !success {
-        return "", fmt.Errorf("fallo al descargar binario para %s", arch)
+        return "", fmt.Errorf("failed to download binary for %s", arch)
     }
     os.Chmod("/usr/bin/slowdns-server", 0755)
 

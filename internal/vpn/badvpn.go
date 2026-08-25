@@ -51,7 +51,7 @@ func InstallBadVPN(port string) error {
 	// 5. Crear servicio único con multi-listen-addr (como el servidor de producción)
 	svc := `[Unit]
 Description=BadVPN UDP Gateway (Multi-Port)
-Documentation=https://t.me/gerhanatunnel
+Documentation=https://t.me/orxtunnel
 After=syslog.target network-online.target
 
 [Service]
@@ -68,13 +68,13 @@ WantedBy=multi-user.target`
 
 	svcFile := "/etc/systemd/system/badvpn.service"
 	if err := os.WriteFile(svcFile, []byte(svc), 0644); err != nil {
-		return fmt.Errorf("fallo escribir badvpn.service: %v", err)
+		return fmt.Errorf("failed to write badvpn.service: %v", err)
 	}
 
 	exec.Command("systemctl", "daemon-reload").Run()
 	exec.Command("systemctl", "enable", "badvpn.service").Run()
 	if err := exec.Command("systemctl", "restart", "badvpn.service").Run(); err != nil {
-		return fmt.Errorf("fallo reiniciar badvpn.service: %v", err)
+		return fmt.Errorf("failed to restart badvpn.service: %v", err)
 	}
 
 	// 6. Verificación
@@ -83,13 +83,13 @@ WantedBy=multi-user.target`
 		logCmd, _ := exec.Command("journalctl", "-u", "badvpn.service", "--no-pager", "-n", "10").Output()
 		logs := string(logCmd)
 		if logs == "" {
-			logs = "No se pudieron obtener logs."
+			logs = "Could not retrieve logs."
 		}
 
 		_ = exec.Command("systemctl", "stop", "badvpn.service").Run()
 		_ = os.Remove(svcFile)
 		_ = exec.Command("systemctl", "daemon-reload").Run()
-		return fmt.Errorf("badvpn no pudo mantenerse activo.\n\n📝 <b>LOGS:</b>\n<pre>%s</pre>", logs)
+		return fmt.Errorf("badvpn could not stay active.\n\n📝 <b>LOGS:</b>\n<pre>%s</pre>", logs)
 	}
 
 	return nil
@@ -100,7 +100,7 @@ func installBadVPNFallback() error {
 	stdBin := "/usr/bin/badvpn-udpgw"
 
 	if _, err := os.Stat(stdBin); os.IsNotExist(err) {
-		return fmt.Errorf("fallo: badvpn-udpgw no encontrado. Por favor reinstala el bot con el script para compilarlo nativamente.")
+		return fmt.Errorf("failed: badvpn-udpgw not found. Please reinstall the bot with the installer so it is compiled natively.")
 	}
 
 	// Crear servicios separados (un servicio por puerto)
@@ -140,7 +140,7 @@ WantedBy=multi-user.target`
 	}
 
 	if activeCount == 0 {
-		return fmt.Errorf("ningún servicio badvpn pudo mantenerse activo")
+		return fmt.Errorf("no badvpn service could stay active")
 	}
 
 	return nil

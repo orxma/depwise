@@ -46,7 +46,7 @@ func InstallFalcon(port string) (string, error) {
 	}
 
 	if !downloaded {
-		return "", fmt.Errorf("fallo descarga falconproxy: %s", lastErr)
+		return "", fmt.Errorf("falconproxy download failed: %s", lastErr)
 	}
 	os.Chmod("/usr/local/bin/falconproxy", 0755)
 
@@ -76,7 +76,7 @@ WantedBy=multi-user.target
 	exec.Command("systemctl", "daemon-reload").Run()
 	exec.Command("systemctl", "enable", "falconproxy").Run()
 	if err := exec.Command("systemctl", "restart", "falconproxy").Run(); err != nil {
-		return "", fmt.Errorf("fallo al iniciar falconproxy: %v", err)
+		return "", fmt.Errorf("failed to start falconproxy: %v", err)
 	}
 
 	return "latest", nil

@@ -1,6 +1,7 @@
 package sys
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -22,7 +23,7 @@ func GetScannerStatus() (assetfinderOK bool, httpxOK bool) {
 func InstallScannerTool(name string) error {
 	goPath := findGoPath()
 	if goPath == "" {
-		return fmt.Errorf("Go no está instalado en este servidor")
+		return fmt.Errorf("Go is not installed on this server")
 	}
 
 	var pkg string
@@ -44,7 +45,7 @@ func InstallScannerTool(name string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error instalando %s: %v\nOutput: %s", name, err, string(out))
+		return fmt.Errorf("error installing %s: %v\nOutput: %s", name, err, string(out))
 	}
 
 	// Verificar que realmente se instaló
@@ -92,7 +93,7 @@ func UninstallAllScannerTools() error {
 		errs = append(errs, err.Error())
 	}
 	if len(errs) > 0 {
-		return fmt.Errorf(strings.Join(errs, "; "))
+		return errors.New(strings.Join(errs, "; "))
 	}
 	return nil
 }
@@ -101,7 +102,7 @@ func UninstallAllScannerTools() error {
 func EnsureScannerDeps() error {
 	goPath := findGoPath()
 	if goPath == "" {
-		return fmt.Errorf("Go no está instalado. Por favor instala Go primero")
+		return fmt.Errorf("Go is not installed. Please install Go first")
 	}
 
 	tools := map[string]string{
@@ -113,7 +114,7 @@ func EnsureScannerDeps() error {
 		if findGoBinary(name) == "" {
 			out, err := exec.Command(goPath, "install", "-v", pkg).CombinedOutput()
 			if err != nil {
-				return fmt.Errorf("error instalando %s: %v\nOutput: %s", name, err, string(out))
+				return fmt.Errorf("error installing %s: %v\nOutput: %s", name, err, string(out))
 			}
 		}
 	}
@@ -196,12 +197,12 @@ func RunScanner(domain string) (string, error) {
 	// Resolve paths
 	assetPath := findGoBinary("assetfinder")
 	if assetPath == "" {
-		return "", fmt.Errorf("assetfinder no encontrado. Instálalo desde el menú Protocolos > Escaner.")
+		return "", fmt.Errorf("assetfinder not found. Install it from the Protocols > Scanner menu.")
 	}
 
 	httpxPath := findGoBinary("httpx")
 	if httpxPath == "" {
-		return "", fmt.Errorf("httpx no encontrado. Instálalo desde el menú Protocolos > Escaner.")
+		return "", fmt.Errorf("httpx not found. Install it from the Protocols > Scanner menu.")
 	}
 
 	// 1. Assetfinder
@@ -213,7 +214,7 @@ func RunScanner(domain string) (string, error) {
 
 	subs := strings.TrimSpace(string(outAsset))
 	if subs == "" {
-		return "❌ No se encontraron subdominios.", nil
+		return "❌ No subdomains found.", nil
 	}
 
 	// 2. HTTPX (using stdin)
@@ -226,7 +227,7 @@ func RunScanner(domain string) (string, error) {
 
 	result := string(outHttpx)
 	if result == "" {
-		return "🔍 Subdominios encontrados, pero ninguno respondió a HTTP/HTTPS.", nil
+		return "🔍 Subdomains found, but none responded on HTTP/HTTPS.", nil
 	}
 
 	return result, nil

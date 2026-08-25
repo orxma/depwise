@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	log.Println("Iniciando ORX TUNNEL Bot...")
+	log.Println("Starting ORX TUNNEL Bot...")
 
 	// Iniciar servidor del bot (bloqueante)
 	bot.StartBot()

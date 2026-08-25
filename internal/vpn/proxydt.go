@@ -55,7 +55,7 @@ func InstallProxyDT() error {
 				break
 			}
 
-			lastErr = fmt.Errorf("binario descargado pero no ejecutable en esta arquitectura")
+			lastErr = fmt.Errorf("binary downloaded but not executable on this architecture")
 			os.Remove("/usr/bin/proxydt")
 		} else {
 			lastErr = err
@@ -63,11 +63,11 @@ func InstallProxyDT() error {
 	}
 
 	if !success {
-		return fmt.Errorf("fallo la instalación de ProxyDT: %v", lastErr)
+		return fmt.Errorf("ProxyDT installation failed: %v", lastErr)
 	}
 
 	if err := os.Chmod("/usr/bin/proxydt", 0755); err != nil {
-		return fmt.Errorf("error al dar permisos a proxydt: %v", err)
+		return fmt.Errorf("error setting permissions on proxydt: %v", err)
 	}
 
 	// Create symlink
@@ -107,30 +107,30 @@ RestartSec=3
 WantedBy=multi-user.target`
 
 	if err := os.WriteFile(svcFile, []byte(svc), 0644); err != nil {
-		return fmt.Errorf("error al escribir servicio %s: %v", svcName, err)
+		return fmt.Errorf("error writing service %s: %v", svcName, err)
 	}
 
 	_ = exec.Command("systemctl", "daemon-reload").Run()
 	_ = exec.Command("systemctl", "enable", svcName).Run()
 
 	if err := exec.Command("systemctl", "restart", svcName).Run(); err != nil {
-		return fmt.Errorf("error al iniciar servicio %s: %v", svcName, err)
+		return fmt.Errorf("error starting service %s: %v", svcName, err)
 	}
 
 	// 3. Simple verification
-	time.Sleep(1500 * time.Millisecond) // Esperar un poco más por seguridad
+	time.Sleep(1500 * time.Millisecond) // Wait a bit longer to be safe
 	if err := exec.Command("systemctl", "is-active", "--quiet", svcName).Run(); err != nil {
 		// Capturar LOGS para diagnosticar
 		logCmd, _ := exec.Command("journalctl", "-u", svcName, "--no-pager", "-n", "10").Output()
 		logs := string(logCmd)
 		if logs == "" {
-			logs = "No se pudieron obtener logs del sistema."
+			logs = "Could not retrieve system logs."
 		}
 
 		_ = exec.Command("systemctl", "stop", svcName).Run()
 		_ = os.Remove(svcFile)
 		_ = exec.Command("systemctl", "daemon-reload").Run()
-		return fmt.Errorf("el servicio ProxyDT no pudo mantenerse activo en el puerto %s.\n\n📝 <b>LOGS:</b>\n<pre>%s</pre>", port, logs)
+		return fmt.Errorf("the ProxyDT service could not stay active on port %s.\n\n📝 <b>LOGS:</b>\n<pre>%s</pre>", port, logs)
 	}
 
 	return nil

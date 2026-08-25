@@ -115,8 +115,8 @@ func finishZivpnCreation(c tele.Context, password string, days int, chatID int64
 	}
 
 	res += "━━━━━━━━━━━━━━\n"
-	res += "📢 <b>Canal:</b> @orxtunnel\n"
-	res += "👨‍💻 <b>Dev:</b> @Dan3651\n"
+	res += "📢 <b>Channel:</b> @orxtunnel\n"
+	res += "👨‍💻 <b>Dev:</b> @orxtunnel\n"
 
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data(i18n.T(chatID, "btn.back"), "back_main")))
