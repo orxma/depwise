@@ -159,17 +159,6 @@ func StartBot() {
 		return handleStart(c, b)
 	})
 
-	// Idioma
-	b.Handle(&tele.Btn{Unique: "menu_lang"}, func(c tele.Context) error {
-		return handleMenuLang(c, b)
-	})
-	b.Handle(&tele.Btn{Unique: "set_lang_es"}, func(c tele.Context) error {
-		return handleSetLang(c, b, "es")
-	})
-	b.Handle(&tele.Btn{Unique: "set_lang_en"}, func(c tele.Context) error {
-		return handleSetLang(c, b, "en")
-	})
-
 	// Text Interceptor para conversacion
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		return handleTextInputs(c, b)
@@ -586,11 +575,6 @@ func handleStart(c tele.Context, b *tele.Bot) error {
 	// Limpiar cualquier estado activo al volver al menú
 	DeleteUserStep(chatID)
 
-	// --- Lógica de i18n inicial ---
-	if !i18n.HasLang(chatID) {
-		return handleMenuLang(c, b)
-	}
-
 	data, _ := db.Load()
 
 	// Registrar historial
@@ -673,7 +657,6 @@ func buildMainMenuMarkup(chatID int64) *tele.ReplyMarkup {
 	btnOnline := menu.Data(i18n.T(chatID, "btn.monitor"), "menu_online")
 	btnProtocols := menu.Data(i18n.T(chatID, "btn.protocols"), "menu_protocols")
 	btnSettings := menu.Data(i18n.T(chatID, "btn.pro_settings"), "menu_admins")
-	btnLanguage := menu.Data(i18n.T(chatID, "btn.language"), "menu_lang")
 	btnReferrals := menu.Data(i18n.T(chatID, "btn.referrals"), "menu_referrals")
 
 	data, _ := db.Load()
@@ -703,9 +686,6 @@ func buildMainMenuMarkup(chatID int64) *tele.ReplyMarkup {
 
 	// Fila 4.5: Referidos
 	rows = append(rows, menu.Row(btnReferrals))
-
-	// Fila 5: Idioma (visible para todos)
-	rows = append(rows, menu.Row(btnLanguage))
 
 	// Fila 6: SuperAdmin / Admin Config
 	if isFull {
@@ -743,37 +723,4 @@ func menuCrearMarkup(chatID int64) *tele.ReplyMarkup {
 	return menu
 }
 
-func handleMenuLang(c tele.Context, b *tele.Bot) error {
-	chatID := c.Chat().ID
-	text := i18n.TLang("es", "lang.select_title") // Always show title in bilingual
 
-	menu := &tele.ReplyMarkup{}
-	btnES := menu.Data("🇪🇸 Español", "set_lang_es")
-	btnEN := menu.Data("🇬🇧 English", "set_lang_en")
-
-	// Si ya tiene idioma, mostrar botón volver
-	var rows []tele.Row
-	rows = append(rows, menu.Row(btnES, btnEN))
-
-	if i18n.HasLang(chatID) {
-		btnBack := menu.Data(i18n.T(chatID, "btn.back"), "back_main")
-		rows = append(rows, menu.Row(btnBack))
-	}
-
-	menu.Inline(rows...)
-
-	return SafeEditCtx(c, b, text, menu)
-}
-
-func handleSetLang(c tele.Context, b *tele.Bot, lang string) error {
-	chatID := c.Chat().ID
-	i18n.SetLang(chatID, lang)
-
-	if c.Callback() != nil {
-		b.Respond(c.Callback(), &tele.CallbackResponse{
-			Text: i18n.TLang(lang, "lang.changed"),
-		})
-	}
-
-	return handleStart(c, b)
-}

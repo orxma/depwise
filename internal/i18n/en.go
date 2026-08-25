@@ -2,10 +2,6 @@ package i18n
 
 // enStrings contains all user-facing strings in English
 var enStrings = map[string]string{
-	// ===== Language Selection =====
-	"lang.select_title": "🌐 <b>Selecciona tu idioma</b> / <b>Select your language</b>",
-	"lang.changed":      "✅ Language changed to <b>English</b>",
-
 	// ===== Middleware (Ban) =====
 	"mid.banned_alert": "🚫 YOU ARE BANNED: %s",
 	"mid.banned_msg":   "🚫 <b>YOU ARE BANNED</b>\n\nReason: <i>%s</i>",
@@ -43,7 +39,6 @@ var enStrings = map[string]string{
 	"btn.pro_settings": "⚙️ Pro Settings",
 	"btn.back":         "🔙 Back",
 	"btn.cancel":       "❌ Cancel",
-	"btn.language":     "🌐 Idioma / Language",
 
 	// ===== Create Menu =====
 	"create.title":     "📝 <b>What do you want to create?</b>",

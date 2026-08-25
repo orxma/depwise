@@ -17,7 +17,6 @@ type ConfigData struct {
 	UserHistory      []int64              `json:"user_history"`
 	PublicAccess     bool                 `json:"public_access"`
 	PublicScanner    bool                 `json:"public_scanner"`
-	UserLanguages    map[string]string    `json:"user_languages"`
 	SSHOwners        map[string]string    `json:"ssh_owners"`
 	SSHTimeUsers     map[string]string    `json:"ssh_time_users"` // user -> expire date
 	CloudflareDomain string               `json:"cloudflare_domain"`
@@ -361,7 +360,6 @@ func defaultData() *ConfigData {
 		BannedUsers:   make(map[string]BannedUserInfo),
 		ExtraInfo:     "Puertos: 22, 80, 443",
 		PublicAccess:  true,
-		UserLanguages: make(map[string]string),
 		SSHOwners:     make(map[string]string),
 		SSHTimeUsers:  make(map[string]string),
 		ZivpnUsers:    make(map[string]string),
