@@ -14,7 +14,7 @@ var badvpnPorts = []string{"7100", "7200", "7300"}
 const badvpnBin = "/usr/bin/badvpn"
 
 // badvpnDownloadURL es la URL del binario custom hospedado en el repo
-const badvpnDownloadURL = "https://github.com/kevinaldaircama/privanox-code/raw/main/bin/badvpn"
+const badvpnDownloadURL = "https://github.com/orxma/depwise/raw/main/bin/badvpn"
 
 // InstallBadVPN descarga el binario custom de badvpn y lo configura
 // en múltiples puertos (7100, 7200, 7300) con un solo servicio.

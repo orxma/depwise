@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
-	"github.com/kevinaldaircama/privanox-code/internal/i18n"
-	"github.com/kevinaldaircama/privanox-code/internal/sys"
-	"github.com/kevinaldaircama/privanox-code/internal/vpn"
+	"github.com/orxma/depwise/internal/db"
+	"github.com/orxma/depwise/internal/i18n"
+	"github.com/orxma/depwise/internal/sys"
+	"github.com/orxma/depwise/internal/vpn"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -115,7 +115,7 @@ func finishZivpnCreation(c tele.Context, password string, days int, chatID int64
 	}
 
 	res += "━━━━━━━━━━━━━━\n"
-	res += "📢 <b>Canal:</b> @Depwise2\n"
+	res += "📢 <b>Canal:</b> @orxtunnel\n"
 	res += "👨‍💻 <b>Dev:</b> @Dan3651\n"
 
 	markup := &tele.ReplyMarkup{}

@@ -15,7 +15,7 @@ const (
 	// CurrentVersion indica la versión actual en ejecución
 	CurrentVersion = "7.9"
 	// RemoteVersionURL es el archivo en GitHub que dice la última versión disponible
-	RemoteVersionURL = "https://raw.githubusercontent.com/kevinaldaircama/privanox-code/main/version.txt"
+	RemoteVersionURL = "https://raw.githubusercontent.com/orxma/depwise/main/version.txt"
 )
 
 // CheckForUpdate verifica si hay una actualización disponible comparando la versión local con la remota.
@@ -68,25 +68,25 @@ func RunUpdate() error {
 	updateScript := `#!/bin/bash
 sleep 2
 cd /tmp
-rm -rf privanox-code
-git clone https://github.com/kevinaldaircama/privanox-code.git
-cd privanox-code
+rm -rf depwise
+git clone https://github.com/orxma/depwise.git
+cd depwise
 export PATH=$PATH:/usr/local/go/bin
 go mod tidy
-go build -o /usr/local/bin/depwise-bot cmd/depwise/main.go
-systemctl restart depwise
+go build -o /usr/local/bin/orxtunnel-bot cmd/orxtunnel/main.go
+systemctl restart orxtunnel
 `
-	err := os.WriteFile("/tmp/depwise_update.sh", []byte(updateScript), 0755)
+	err := os.WriteFile("/tmp/orxtunnel_update.sh", []byte(updateScript), 0755)
 	if err != nil {
 		return fmt.Errorf("error creando script de actualización: %v", err)
 	}
 
-	unitName := fmt.Sprintf("depwise-updater-%d", time.Now().Unix())
-	cmd := exec.Command("systemd-run", "--unit="+unitName, "/tmp/depwise_update.sh")
+	unitName := fmt.Sprintf("orxtunnel-updater-%d", time.Now().Unix())
+	cmd := exec.Command("systemd-run", "--unit="+unitName, "/tmp/orxtunnel_update.sh")
 	err = cmd.Start()
 	if err != nil {
 		// Fallback por si systemd-run falla
-		cmdFallback := exec.Command("sh", "-c", `nohup /tmp/depwise_update.sh > /dev/null 2>&1 &`)
+		cmdFallback := exec.Command("sh", "-c", `nohup /tmp/orxtunnel_update.sh > /dev/null 2>&1 &`)
 		return cmdFallback.Start()
 	}
 	

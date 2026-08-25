@@ -1,4 +1,4 @@
-module github.com/kevinaldaircama/privanox-code
+module github.com/orxma/depwise
 
 go 1.25.0
 

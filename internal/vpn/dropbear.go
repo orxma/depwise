@@ -28,7 +28,7 @@ func InstallDropbear(ports string) error {
 	// 3. Crear banner por defecto si no existe
 	bannerFile := "/etc/gerhanatunnel.txt"
 	if _, err := os.Stat(bannerFile); os.IsNotExist(err) {
-		os.WriteFile(bannerFile, []byte("Welcome to Depwise VPN Server\n"), 0644)
+		os.WriteFile(bannerFile, []byte("Welcome to ORX TUNNEL Server\n"), 0644)
 	}
 
 	// 4. Detener servicio default

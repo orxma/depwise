@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =========================================================
-# INSTALADOR UNIVERSAL V8.0.5: BOT TELEGRAM DEPWISE SSH 💎 (BINARY EDITION)
+# INSTALADOR UNIVERSAL V8.0.5: BOT TELEGRAM ORX TUNNEL SSH 💎 (BINARY EDITION)
 # =========================================================
 
 RED='\033[0;31m'
@@ -20,7 +20,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-PROJECT_DIR="/opt/depwise_bot"
+PROJECT_DIR="/opt/orxtunnel_bot"
 ENV_FILE="$PROJECT_DIR/.env"
 
 # --- CONFIGURACION PRIVADA ---
@@ -31,7 +31,7 @@ FIREBASE_URL=$(echo "$FIREBASE_URL_B64" | base64 -d)
 
 install_bot() {
     echo -e "${GREEN}=================================================="
-    echo -e "       CONFIGURACION BOT DEPWISE V8.0 (BINARY)"
+    echo -e "       CONFIGURACION BOT ORX TUNNEL V8.0 (BINARY)"
     echo -e "==================================================${NC}"
 
     # Validación de Key de Instalación
@@ -101,16 +101,16 @@ install_bot() {
     
     ARCH=$(uname -m)
     if [ "$ARCH" = "x86_64" ]; then
-        BIN_URL="https://github.com/Depwisescript/Depwise-Installers/releases/latest/download/depwise-bot-amd64"
+        BIN_URL="https://github.com/Depwisescript/Depwise-Installers/releases/latest/download/orxtunnel-bot-amd64"
     elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-        BIN_URL="https://github.com/Depwisescript/Depwise-Installers/releases/latest/download/depwise-bot-arm64"
+        BIN_URL="https://github.com/Depwisescript/Depwise-Installers/releases/latest/download/orxtunnel-bot-arm64"
     else
         log_error "Arquitectura no soportada: $ARCH"
         exit 1
     fi
 
-    wget -qO /usr/local/bin/depwise-bot "${BIN_URL}?t=$(date +%s)" || { log_error "Error al descargar el bot."; exit 1; }
-    chmod +x /usr/local/bin/depwise-bot
+    wget -qO /usr/local/bin/orxtunnel-bot "${BIN_URL}?t=$(date +%s)" || { log_error "Error al descargar el bot."; exit 1; }
+    chmod +x /usr/local/bin/orxtunnel-bot
 
     # 3. Compilar BadVPN nativamente (Repositorio Público, sin tokens)
     if [ ! -f "/usr/bin/badvpn-udpgw" ]; then
@@ -130,7 +130,7 @@ install_bot() {
 
     # 4. Servicio Systemd
     log_info "Generando sistema daemon SystemD..."
-    cat << EOF > /etc/systemd/system/depwise.service
+    cat << EOF > /etc/systemd/system/orxtunnel.service
 [Unit]
 Description=Depwise Telegram Bot (Go Edition)
 After=network.target
@@ -140,7 +140,7 @@ Type=simple
 User=root
 EnvironmentFile=$ENV_FILE
 Environment="GOMEMLIMIT=40MiB" "GOGC=20"
-ExecStart=/usr/local/bin/depwise-bot
+ExecStart=/usr/local/bin/orxtunnel-bot
 Restart=always
 RestartSec=5
 
@@ -149,8 +149,8 @@ WantedBy=multi-user.target
 EOF
 
     systemctl daemon-reload
-    systemctl enable depwise.service
-    systemctl restart depwise.service
+    systemctl enable orxtunnel.service
+    systemctl restart orxtunnel.service
 
     echo -e "${GREEN}=================================================="
     echo -e "       INSTALACION V8.0 COMPLETADA 💎"
@@ -175,8 +175,8 @@ uninstall_all() {
     fi
 
     log_info "1/4 Deteniendo servicios..."
-    systemctl stop depwise.service 2>/dev/null || true
-    systemctl disable depwise.service 2>/dev/null || true
+    systemctl stop orxtunnel.service 2>/dev/null || true
+    systemctl disable orxtunnel.service 2>/dev/null || true
     
     # Detener proxies y vpns
     local services=("badvpn" "proxydt" "stunnel4" "dropbear" "falconproxy" "udpcustom" "zivpn" "nsd")
@@ -187,8 +187,8 @@ uninstall_all() {
     done
 
     log_info "2/4 Eliminando archivos y binarios..."
-    rm -f /usr/local/bin/depwise-bot
-    rm -f /etc/systemd/system/depwise.service
+    rm -f /usr/local/bin/orxtunnel-bot
+    rm -f /etc/systemd/system/orxtunnel.service
     rm -rf "$PROJECT_DIR"
     rm -f /root/bot_data.json
     
@@ -253,7 +253,7 @@ enable_root() {
 show_menu() {
     clear
     echo -e "${CYAN}=================================================="
-    echo -e "       DEPWISE BOT INSTALLER (GO EDITION)"
+    echo -e "       ORX TUNNEL BOT INSTALLER (GO EDITION)"
     echo -e "==================================================${NC}"
     echo -e "  1. ${GREEN}Instalar / Actualizar Bot${NC}"
     echo -e "  2. ${RED}Desinstalar Todo (Bot + VPNs)${NC}"

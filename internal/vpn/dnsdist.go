@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
+	"github.com/orxma/depwise/internal/db"
 )
 
 // EnsureDNSDistInstalled verifica y en caso necesario instala dnsdist
@@ -54,7 +54,7 @@ func SyncDNSDist() error {
 
 	// Generate config
 	var sb strings.Builder
-	sb.WriteString("-- Auto-generado por Depwise Bot\n")
+	sb.WriteString("-- Auto-generado por ORX TUNNEL Bot\n")
 	sb.WriteString("setLocal(\"0.0.0.0:5380\")\n")
 	sb.WriteString("addLocal(\"[::]:5380\")\n")
 	sb.WriteString("addACL('0.0.0.0/0')\n")

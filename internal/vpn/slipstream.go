@@ -76,7 +76,7 @@ func InstallSlipstream(domain, port string) error {
 
 	// Systemd Service
 	svc := `[Unit]
-Description=Slipstream Depwise Service
+Description=Slipstream ORX TUNNEL Service
 After=network.target
 
 [Service]

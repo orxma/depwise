@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
+	"github.com/orxma/depwise/internal/db"
 )
 
 // PerformFullCleanup realiza una limpieza profunda del SSD
@@ -35,7 +35,7 @@ func PerformFullCleanup() (string, error) {
 	}
 
 	// 5. Borrar archivos de logs antiguos del bot (si los hay)
-	_ = exec.Command("rm", "-f", "/var/log/depwise-bot.log*").Run()
+	_ = exec.Command("rm", "-f", "/var/log/orxtunnel-bot.log*").Run()
 
 	// Obtener espacio libre final
 	freeSpace := "N/A"

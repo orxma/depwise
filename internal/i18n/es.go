@@ -11,7 +11,7 @@ var esStrings = map[string]string{
 	"mid.banned_msg":   "🚫 <b>ESTÁS BANEADO</b>\n\nMotivo: <i>%s</i>",
 
 	// ===== Main Menu =====
-	"main.title":       "💎 <b>BOT TELEGRAM PRIVANOX VPN</b>\n",
+	"main.title":       "💎 <b>ORX TUNNEL</b>\n",
 	"main.subtitle":    "<i>Panel de Control Avanzado</i>\n\n",
 	"main.cpu":         "🧠 <b>CPU:</b> [%s] <code>%.1f%%</code> (%d Cores)\n",
 	"main.ram":         "💾 <b>RAM:</b> [%s] <code>%dMB / %dMB</code>\n",
@@ -27,7 +27,7 @@ var esStrings = map[string]string{
 		"🛠️ <b>¿NECESITAS UN SCRIPT A MEDIDA?</b>\n" +
 		"Desarrollamos bots y herramientas personalizadas para tu proyecto.\n" +
 		"━━━━━━━━━━━━━━\n" +
-		"📢 <b>Canal Oficial:</b> @vpn_privanox\n" +
+		"📢 <b>Canal Oficial:</b> @orxtunnel\n" +
 		"👤 <b>Soporte / Compras:</b> @KTTOFICIAL",
 
 	// ===== Main Menu Buttons =====
@@ -562,12 +562,12 @@ var esStrings = map[string]string{
 	"bk.auto_caption":    "🤖 <b>Respaldo Automático (%d días)</b>",
 
 	// ===== Scanner =====
-	"scanner.no_tools_title":      "🔍 <b>Depwise Scanner 🌐</b>\n\n⚠️ <b>Herramientas no instaladas</b>\n\n",
+	"scanner.no_tools_title":      "🔍 <b>ORX TUNNEL Scanner 🌐</b>\n\n⚠️ <b>Herramientas no instaladas</b>\n\n",
 	"scanner.tool_not_installed":  "❌ %s: No instalado\n",
 	"scanner.tool_installed":      "✅ %s: Instalado\n",
 	"scanner.install_hint":        "\n<i>Instala las herramientas desde</i> ⚙️ <b>Protocolos</b> → 🔍 <b>Escaner</b>",
 	"scanner.btn_start":           "🔍 Iniciar Escaneo",
-	"scanner.ready_title":         "🔍 <b>Depwise Scanner 🌐</b>\n\n✅ <b>Herramientas listas</b>\n• assetfinder: ✅\n• httpx: ✅\n\n🚀 <b>Funciones:</b>\n• Descubre subdominios\n• Verifica hosts activos\n• Escaneo rápido desde Telegram",
+	"scanner.ready_title":         "🔍 <b>ORX TUNNEL Scanner 🌐</b>\n\n✅ <b>Herramientas listas</b>\n• assetfinder: ✅\n• httpx: ✅\n\n🚀 <b>Funciones:</b>\n• Descubre subdominios\n• Verifica hosts activos\n• Escaneo rápido desde Telegram",
 	"scanner.prompt_domain":       "🌐 <b>Escaner:</b>\n\n✏️ <i>Escribe el dominio que deseas escanear (ej: google.com):</i>",
 	"scanner.not_installed_alert": "❌ <b>Herramientas no instaladas.</b>\n\nInstálalas desde ⚙️ <b>Protocolos</b> → 🔍 <b>Escaner</b>",
 	"scanner.scanning":            "⏳ <b>Escaneando:</b> <code>%s</code>\n\n<i>Esto puede tardar unos segundos, por favor espera...</i>",

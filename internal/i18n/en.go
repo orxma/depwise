@@ -11,7 +11,7 @@ var enStrings = map[string]string{
 	"mid.banned_msg":   "🚫 <b>YOU ARE BANNED</b>\n\nReason: <i>%s</i>",
 
 	// ===== Main Menu =====
-	"main.title":       "💎 <b>BOT TELEGRAM sshprivanoxbot</b>\n",
+	"main.title":       "💎 <b>ORX TUNNEL</b>\n",
 	"main.subtitle":    "<i>Advanced Control Panel</i>\n\n",
 	"main.cpu":         "🧠 <b>CPU:</b> [%s] <code>%.1f%%</code> (%d Cores)\n",
 	"main.ram":         "💾 <b>RAM:</b> [%s] <code>%dMB / %dMB</code>\n",
@@ -27,7 +27,7 @@ var enStrings = map[string]string{
 		"🛠️ <b>NEED A CUSTOM SCRIPT?</b>\n" +
 		"We develop custom bots and tools for your project.\n" +
 		"━━━━━━━━━━━━━━\n" +
-		"📢 <b>Official Channel:</b> @vpn_privanox\n" +
+		"📢 <b>Official Channel:</b> @orxtunnel\n" +
 		"👤 <b>Support / Sales:</b> @KTTOFICIAL",
 
 	// ===== Main Menu Buttons =====
@@ -559,12 +559,12 @@ var enStrings = map[string]string{
 	"bk.auto_caption":    "🤖 <b>Automatic Backup (%d days)</b>",
 
 	// ===== Scanner =====
-	"scanner.no_tools_title":      "🔍 <b>Depwise Scanner 🌐</b>\n\n⚠️ <b>Tools not installed</b>\n\n",
+	"scanner.no_tools_title":      "🔍 <b>ORX TUNNEL Scanner 🌐</b>\n\n⚠️ <b>Tools not installed</b>\n\n",
 	"scanner.tool_not_installed":  "❌ %s: Not installed\n",
 	"scanner.tool_installed":      "✅ %s: Installed\n",
 	"scanner.install_hint":        "\n<i>Install the tools from</i> ⚙️ <b>Protocols</b> → 🔍 <b>Scanner</b>",
 	"scanner.btn_start":           "🔍 Start Scan",
-	"scanner.ready_title":         "🔍 <b>Depwise Scanner 🌐</b>\n\n✅ <b>Tools ready</b>\n• assetfinder: ✅\n• httpx: ✅\n\n🚀 <b>Features:</b>\n• Discover subdomains\n• Verify active hosts\n• Fast scanning from Telegram",
+	"scanner.ready_title":         "🔍 <b>ORX TUNNEL Scanner 🌐</b>\n\n✅ <b>Tools ready</b>\n• assetfinder: ✅\n• httpx: ✅\n\n🚀 <b>Features:</b>\n• Discover subdomains\n• Verify active hosts\n• Fast scanning from Telegram",
 	"scanner.prompt_domain":       "🌐 <b>Scanner:</b>\n\n✏️ <i>Enter the domain you want to scan (e.g. google.com):</i>",
 	"scanner.not_installed_alert": "❌ <b>Tools not installed.</b>\n\nInstall them from ⚙️ <b>Protocols</b> → 🔍 <b>Scanner</b>",
 	"scanner.scanning":            "⏳ <b>Scanning:</b> <code>%s</code>\n\n<i>This may take a few seconds, please wait...</i>",

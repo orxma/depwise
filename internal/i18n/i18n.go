@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
+	"github.com/orxma/depwise/internal/db"
 )
 
 var translations = map[string]map[string]string{

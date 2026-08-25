@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
-	"github.com/kevinaldaircama/privanox-code/internal/i18n"
+	"github.com/orxma/depwise/internal/db"
+	"github.com/orxma/depwise/internal/i18n"
 	tele "gopkg.in/telebot.v3"
 )
 

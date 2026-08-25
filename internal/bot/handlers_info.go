@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
-	"github.com/kevinaldaircama/privanox-code/internal/i18n"
-	"github.com/kevinaldaircama/privanox-code/internal/sys"
-	"github.com/kevinaldaircama/privanox-code/internal/vpn"
+	"github.com/orxma/depwise/internal/db"
+	"github.com/orxma/depwise/internal/i18n"
+	"github.com/orxma/depwise/internal/sys"
+	"github.com/orxma/depwise/internal/vpn"
 	tele "gopkg.in/telebot.v3"
 )
 

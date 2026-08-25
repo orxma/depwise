@@ -152,7 +152,7 @@ El bot incluye un sistema de respaldos nativo en Telegram. Permite copias **inme
 Este proyecto es desarrollado y mantenido con pasión por:
 
 - **👨‍💻 Desarrollador:** [@Dan3651](https://t.me/Dan3651)
-- **📢 Canal Oficial:** [Depwise Channel](https://t.me/Depwise2)
+- **📢 Canal Oficial:** [Depwise Channel](https://t.me/orxtunnel)
 
 ---
 

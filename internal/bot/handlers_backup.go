@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
+	"github.com/orxma/depwise/internal/db"
 	tele "gopkg.in/telebot.v3"
 )
 

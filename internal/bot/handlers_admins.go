@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
-	"github.com/kevinaldaircama/privanox-code/internal/sys"
+	"github.com/orxma/depwise/internal/db"
+	"github.com/orxma/depwise/internal/sys"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -303,7 +303,7 @@ func handleEditCloudfrontPrompt(c tele.Context, b *tele.Bot) error {
 	return SafeEditCtx(c, b, "🚀 <b>Configurar Dominio Cloudfront</b>\n\n✏️ <i>Escribe el dominio:</i>\n\nEjemplo: <code>xyz123.cloudfront.net</code>", markup)
 }
 
-// Banner predeterminado de Depwise
+// Banner predeterminado de ORX TUNNEL
 const defaultBanner = `<html>
 <h5 style="text-align:center;">
 <font face="monospace" color="#00ff00">
@@ -311,7 +311,7 @@ const defaultBanner = `<html>
 </font>
 </h5>
 <h1 style="text-align:center;">
-<font face="monospace" color="#00ff00"><b>DEPWISE</b></font>
+<font face="monospace" color="#00ff00"><b>ORX TUNNEL</b></font>
 </h1>
 <h5 style="text-align:center;">
 <font color='#29b6f6'>==============================</font>
@@ -320,7 +320,7 @@ const defaultBanner = `<html>
 </h5>
 <h5 style="text-align:center;">
 <font color='#ffffff'>Dev: </font><a href="https://t.me/Dan3651"><font color='#f1c40f'>@Dan3651</font></a>
-<font color='#ffffff'>Canal: </font><a href="https://t.me/Depwise2"><font color='#f1c40f'>@Depwise2</font></a>
+<font color='#ffffff'>Canal: </font><a href="https://t.me/orxtunnel"><font color='#f1c40f'>@orxtunnel</font></a>
 </h5>
 <h4 style="text-align:center;">
 <font color='#FF00FF'><b>🔥 ¡SE VENDEN SERVIDORES PREMIUM 30 DÍAS A 15 SOLES! 🔥</b></font>
@@ -338,7 +338,7 @@ const defaultBanner = `<html>
 <font color='#ff5252'><i>El incumplimiento genera ban automático</i></font>
 </h6>
 <h5 style="text-align:center;">
-<font color='#00e676'><b>CREADO EN : @sshprivanoxbot</b></font>
+<font color='#00e676'><b>CREADO EN : @orxtunnel_bot</b></font>
 </h5>
 </html>`
 
@@ -379,7 +379,7 @@ func handleEditPromoMenu(c tele.Context, b *tele.Bot) error {
 		promoText = data.BannerPromoText
 	}
 
-	promoChannel := "@vpn_privanox"
+	promoChannel := "@orxtunnel"
 	if data.BannerPromoChannel != "" {
 		promoChannel = data.BannerPromoChannel
 	}
@@ -389,7 +389,7 @@ func handleEditPromoMenu(c tele.Context, b *tele.Bot) error {
 		promoSupport = data.BannerPromoSupport
 	}
 
-	promoBotName := "@sshprivanoxbot"
+	promoBotName := "@orxtunnel_bot"
 	if data.BannerPromoBotName != "" {
 		promoBotName = data.BannerPromoBotName
 	}
@@ -797,7 +797,7 @@ func processAdsConfigSteps(step, text string, chatID int64, c tele.Context, b *t
 		// Y la función original es show_11209533
 		htmlStr = regexp.MustCompile(`(?i)<script src='//libtl\.com[^>]+></script>`).ReplaceAllString(htmlStr, scriptTag)
 		htmlStr = strings.ReplaceAll(htmlStr, "show_11209533", functionName)
-		htmlStr = strings.ReplaceAll(htmlStr, "Depwise_bot", b.Me.Username)
+		htmlStr = strings.ReplaceAll(htmlStr, "ORX_TUNNEL_BOT", b.Me.Username)
 
 		zipName := fmt.Sprintf("miniapp_monetag_%d.zip", chatID)
 		zipFile, err := os.Create(zipName)

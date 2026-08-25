@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =========================================================
-# INSTALADOR UNIVERSAL V8.0.5: BOT TELEGRAM DEPWISE SSH 💎 (GO EDITION)
+# INSTALADOR UNIVERSAL V8.0.5: BOT TELEGRAM ORX TUNNEL SSH 💎 (GO EDITION)
 # =========================================================
 
 RED='\033[0;31m'
@@ -30,7 +30,7 @@ else
     log_error "No se pudo detectar el sistema operativo."
     exit 1
 fi
-PROJECT_DIR="/opt/depwise_bot"
+PROJECT_DIR="/opt/orxtunnel_bot"
 ENV_FILE="$PROJECT_DIR/.env"
 
 # Firebase
@@ -39,7 +39,7 @@ FIREBASE_URL=$(echo "$FIREBASE_URL_B64" | base64 -d)
 
 install_bot() {
     echo -e "${GREEN}=================================================="
-    echo -e "       CONFIGURACION BOT DEPWISE V8.0 (GO)"
+    echo -e "       CONFIGURACION BOT ORX TUNNEL V8.0 (GO)"
     echo -e "==================================================${NC}"
         apt update -y >/dev/null 2>&1
     apt install -y curl jq >/dev/null 2>&1
@@ -131,8 +131,8 @@ fi
     log_info "Descargando módulos necesarios..."
     go mod tidy
 
-    go build -o /usr/local/bin/depwise-bot cmd/depwise/main.go
-    chmod +x /usr/local/bin/depwise-bot
+    go build -o /usr/local/bin/orxtunnel-bot cmd/orxtunnel/main.go
+    chmod +x /usr/local/bin/orxtunnel-bot
     rm -rf /tmp/privanox-code
     cd ~
 
@@ -157,7 +157,7 @@ fi
 
     # 4. Servicio Systemd
     log_info "Generando sistema daemon SystemD..."
-    cat << EOF > /etc/systemd/system/depwise.service
+    cat << EOF > /etc/systemd/system/orxtunnel.service
 [Unit]
 Description=Depwise Telegram Bot (Go Edition)
 After=network.target
@@ -167,7 +167,7 @@ Type=simple
 User=root
 EnvironmentFile=$ENV_FILE
 Environment="GOMEMLIMIT=40MiB" "GOGC=20"
-ExecStart=/usr/local/bin/depwise-bot
+ExecStart=/usr/local/bin/orxtunnel-bot
 Restart=always
 RestartSec=5
 
@@ -176,8 +176,8 @@ WantedBy=multi-user.target
 EOF
 
     systemctl daemon-reload
-    systemctl enable depwise.service
-    systemctl restart depwise.service
+    systemctl enable orxtunnel.service
+    systemctl restart orxtunnel.service
 # Marcar la key como utilizada
 curl -s -X DELETE "${FIREBASE_URL}/keys/${INSTALL_KEY}.json" >/dev/null
 
@@ -206,8 +206,8 @@ uninstall_all() {
     fi
 
     log_info "1/4 Deteniendo servicios..."
-    systemctl stop depwise.service 2>/dev/null || true
-    systemctl disable depwise.service 2>/dev/null || true
+    systemctl stop orxtunnel.service 2>/dev/null || true
+    systemctl disable orxtunnel.service 2>/dev/null || true
     
     # Detener proxies y vpns
     local services=("badvpn" "proxydt" "stunnel4" "dropbear" "falconproxy" "udpcustom" "zivpn" "nsd")
@@ -218,8 +218,8 @@ uninstall_all() {
     done
 
     log_info "2/4 Eliminando archivos y binarios..."
-    rm -f /usr/local/bin/depwise-bot
-    rm -f /etc/systemd/system/depwise.service
+    rm -f /usr/local/bin/orxtunnel-bot
+    rm -f /etc/systemd/system/orxtunnel.service
     rm -rf "$PROJECT_DIR"
     rm -f /root/bot_data.json
     
@@ -290,7 +290,7 @@ enable_root() {
 show_menu() {
     clear
     echo -e "${CYAN}=================================================="
-    echo -e "       DEPWISE BOT INSTALLER (GO EDITION)"
+    echo -e "       ORX TUNNEL BOT INSTALLER (GO EDITION)"
     echo -e "==================================================${NC}"
     echo -e "  1. ${GREEN}Instalar / Actualizar Bot${NC}"
     echo -e "  2. ${RED}Desinstalar Todo (Bot + VPNs)${NC}"

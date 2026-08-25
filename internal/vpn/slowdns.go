@@ -54,7 +54,7 @@ func InstallSlowDNS(domain, port string) (string, error) {
 
     // Service Creation
     svc := `[Unit]
-Description=SlowDNS Depwise Service
+Description=SlowDNS ORX TUNNEL Service
 After=network.target
 
 [Service]

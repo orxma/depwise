@@ -10,14 +10,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kevinaldaircama/privanox-code/internal/db"
+	"github.com/orxma/depwise/internal/db"
 )
 
 const (
 	bannerDir       = "/etc/ssh_banners"
 	sshdConfig      = "/etc/ssh/sshd_config"
-	bannerMarkerStart = "# >>> DEPWISE_USER_BANNERS_START <<<"
-	bannerMarkerEnd   = "# >>> DEPWISE_USER_BANNERS_END <<<"
+	bannerMarkerStart = "# >>> ORX TUNNEL_USER_BANNERS_START <<<"
+	bannerMarkerEnd   = "# >>> ORX TUNNEL_USER_BANNERS_END <<<"
 )
 
 // GenerateUserBanner genera el contenido HTML del banner para un usuario SSH
@@ -32,7 +32,7 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 		promoText = data.BannerPromoText
 	}
 
-	promoChannel := "@vpn_privanox"
+	promoChannel := "@orxtunnel"
 	if data != nil && data.BannerPromoChannel != "" {
 		promoChannel = data.BannerPromoChannel
 	}
@@ -42,7 +42,7 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 		promoSupport = data.BannerPromoSupport
 	}
 
-	promoBotName := "@sshprivanoxbot"
+	promoBotName := "@orxtunnel_bot"
 	if data != nil && data.BannerPromoBotName != "" {
 		promoBotName = data.BannerPromoBotName
 	}
@@ -71,16 +71,16 @@ func GenerateUserBanner(username, title string, limit int, expireDate string, da
 	b.WriteString("<font color='#29b6f6'>══════════════════════</font>")
 	b.WriteString("</h5>\n")
 
-	// Logo braille Depwise (probado y funcional en HTTP Injector)
+	// Logo braille ORX TUNNEL (probado y funcional en HTTP Injector)
 	b.WriteString("<h5 style=\"text-align:center;\">")
 	b.WriteString("<font face=\"monospace\" color=\"#00ff00\">")
 	b.WriteString("⠀⠀⢀⣶⡆kevin tech tutorials⢰⣶⡀⠀⠀<br>")
 	b.WriteString("</font>")
 	b.WriteString("</h5>\n")
 
-	// Texto DEPWISE
+	// Texto ORX TUNNEL
 	b.WriteString("<h1 style=\"text-align:center;\">")
-	b.WriteString("<font face=\"monospace\" color=\"#00ff00\"><b>DEPWISE</b></font>")
+	b.WriteString("<font face=\"monospace\" color=\"#00ff00\"><b>ORX TUNNEL</b></font>")
 	b.WriteString("</h1>\n")
 
 	// Separador
@@ -186,7 +186,7 @@ func SyncSSHDBanners() error {
 
 	content := string(raw)
 
-	// Eliminar bloque anterior de Depwise si existe
+	// Eliminar bloque anterior de ORX TUNNEL si existe
 	if idx := strings.Index(content, bannerMarkerStart); idx >= 0 {
 		endIdx := strings.Index(content, bannerMarkerEnd)
 		if endIdx >= 0 {

@@ -56,7 +56,7 @@ func InstallVayDNS(domain, port string) (string, error) {
 
 	// Service Creation (VayDNS uses port 5301)
 	svc := `[Unit]
-Description=VayDNS Depwise Service
+Description=VayDNS ORX TUNNEL Service
 After=network.target
 
 [Service]
