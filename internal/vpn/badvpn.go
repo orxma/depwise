@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 )
 
@@ -13,30 +14,24 @@ var badvpnPorts = []string{"7100", "7200", "7300"}
 // badvpnBin es la ruta del binario custom de BadVPN (soporta multi-listen-addr y RakNet/Minecraft)
 const badvpnBin = "/usr/bin/badvpn"
 
-// badvpnDownloadURL es la URL del binario custom hospedado en el repo
-const badvpnDownloadURL = "https://github.com/orxma/depwise/raw/main/bin/badvpn"
-
-// InstallBadVPN descarga el binario custom de badvpn y lo configura
+// InstallBadVPN compila e instala BadVPN desde fuente
 // en múltiples puertos (7100, 7200, 7300) con un solo servicio.
 // Este binario soporta multi-listen-addr y maneja mejor juegos como Minecraft Bedrock.
 func InstallBadVPN(port string) error {
-	// 1. Dependencias
+	// 1. Dependencias de compilación
 	_ = exec.Command("apt-get", "update").Run()
-	_ = exec.Command("apt-get", "install", "-y", "curl", "screen").Run()
+	_ = exec.Command("apt-get", "install", "-y", "build-essential", "cmake", "git", "gcc", "g++").Run()
 
-	// 2. Descargar binario custom desde el repo
+	// 2. Compilar badvpn desde fuente
 	if _, err := os.Stat(badvpnBin); os.IsNotExist(err) {
-		cmd := exec.Command("curl", "-L", "-s", "-f", "-o", badvpnBin, badvpnDownloadURL)
-		if err := cmd.Run(); err != nil {
-			// Fallback: intentar el estándar badvpn-udpgw
+		if err := compileBadVPN(); err != nil {
+			// Fallback: intentar instalar badvpn-udpgw del paquete del sistema
 			return installBadVPNFallback()
 		}
-		os.Chmod(badvpnBin, 0755)
 	}
 
 	// 3. Verificar que el binario es ejecutable
 	if err := exec.Command(badvpnBin, "--help").Run(); err != nil {
-		// Si falla, puede ser arquitectura incorrecta, intentar fallback
 		os.Remove(badvpnBin)
 		return installBadVPNFallback()
 	}
@@ -95,55 +90,57 @@ WantedBy=multi-user.target`
 	return nil
 }
 
-// installBadVPNFallback usa servicios separados con badvpn-udpgw estándar
-func installBadVPNFallback() error {
-	stdBin := "/usr/bin/badvpn-udpgw"
+// compileBadVPN compila badvpn-udpgw desde fuente
+func compileBadVPN() error {
+	tmpDir := "/tmp/badvpn-build"
+	os.RemoveAll(tmpDir)
+	os.MkdirAll(tmpDir, 0755)
 
-	if _, err := os.Stat(stdBin); os.IsNotExist(err) {
-		return fmt.Errorf("failed: badvpn-udpgw not found. Please reinstall the bot with the installer so it is compiled natively.")
+	// Clonar repositorio de badvpn
+	cmd := exec.Command("git", "clone", "--depth=1", "https://github.com/ambrop72/badvpn.git", tmpDir)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to clone badvpn: %v", err)
 	}
 
-	// Crear servicios separados (un servicio por puerto)
-	for _, p := range badvpnPorts {
-		svcName := "badvpn-" + p
-		svc := `[Unit]
-Description=BadVPN UDP Gateway (Puerto ` + p + `)
-After=network.target
+	// Compilar solo badvpn-udpgw
+	buildDir := filepath.Join(tmpDir, "build")
+	os.MkdirAll(buildDir, 0755)
 
-[Service]
-ExecStart=` + stdBin + ` --listen-addr 127.0.0.1:` + p + ` --max-clients 500
-User=root
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target`
-
-		svcFile := "/etc/systemd/system/" + svcName + ".service"
-		os.WriteFile(svcFile, []byte(svc), 0644)
+	cmd = exec.Command("cmake", "..", "-DBUILD_CLIENT=OFF", "-DBUILD_SERVER=OFF", "-DBUILD_TUN2SOCKS=OFF")
+	cmd.Dir = buildDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("cmake failed: %v", err)
 	}
 
-	exec.Command("systemctl", "daemon-reload").Run()
-	for _, p := range badvpnPorts {
-		svcName := "badvpn-" + p
-		exec.Command("systemctl", "enable", svcName+".service").Run()
-		exec.Command("systemctl", "restart", svcName+".service").Run()
+	cmd = exec.Command("make", "-j$(nproc)", "badvpn-udpgw")
+	cmd.Dir = buildDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("make failed: %v", err)
 	}
 
-	time.Sleep(2 * time.Second)
-
-	activeCount := 0
-	for _, p := range badvpnPorts {
-		if exec.Command("systemctl", "is-active", "--quiet", "badvpn-"+p+".service").Run() == nil {
-			activeCount++
-		}
+	// Copiar binario a /usr/bin/badvpn
+	src := filepath.Join(buildDir, "udpgw", "badvpn-udpgw")
+	if err := os.WriteFile(badvpnBin, mustReadFile(src), 0755); err != nil {
+		return fmt.Errorf("failed to install binary: %v", err)
 	}
 
-	if activeCount == 0 {
-		return fmt.Errorf("no badvpn service could stay active")
-	}
-
+	// Limpiar
+	os.RemoveAll(tmpDir)
 	return nil
+}
+
+func mustReadFile(path string) []byte {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return data
 }
 
 // RemoveBadVPN detiene y elimina todos los servicios badvpn
