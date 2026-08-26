@@ -16,6 +16,9 @@
 accounts, driven entirely from Telegram. Written in **Go** for speed, stability and a low memory
 footprint, it turns a plain VPS into an automated control panel.
 
+The bot **IS the control panel** — no external panel required. Install the bot, then use Telegram
+to install/manage all protocols (Xray, SSH WebSocket, HAProxy, DNS tunnels, etc.).
+
 The bot interface is **100% English**.
 
 ---
@@ -26,87 +29,115 @@ The bot interface is **100% English**.
 > **OS support:** developed and tested on **Ubuntu 24.04**. Use that release (or a derivative) so all
 > dependencies behave (Go, systemd, SSH, Xray, SlowDNS, VayDNS, Slipstream, dnsdist).
 >
-> **Architecture:** both `amd64` and `arm64` (aarch64) are supported. The installer detects the host
-> architecture and fetches the matching Go toolchain.
+> **Architecture:** both `amd64` and `arm64` (aarch64) are supported.
 
-The bot is installed from the **ORX TUNNEL panel**, not from this repository directly:
+### Option 1: Automated Install (Recommended)
 
 ```bash
-bash /etc/orx-tunnel/tools/orxtunnel.sh
+curl -sSL https://raw.githubusercontent.com/orxma/depwise/main/install_depwise.sh | sudo bash
 ```
 
-Choose option **1. Install / Update Bot**. You will be asked for:
+Or download and run manually:
+```bash
+wget https://raw.githubusercontent.com/orxma/depwise/main/install_depwise.sh
+chmod +x install_depwise.sh
+sudo ./install_depwise.sh
+```
 
+The script will prompt for:
 | Prompt | Value |
 | :--- | :--- |
-| `TOKEN` | The bot token from [@BotFather](https://t.me/BotFather) |
-| `Chat ID` | Your numeric Telegram ID (the SuperAdmin) |
+| `BOT_TOKEN` | Token from [@BotFather](https://t.me/BotFather) |
+| `SUPER_ADMIN` | Your numeric Telegram ID |
 
-Credentials are stored in `/opt/orxtunnel_bot/.env` (mode `600`) and reused on later runs.
-
-### Building manually
+### Option 2: Manual Build
 
 ```bash
 git clone https://github.com/orxma/depwise.git
 cd depwise
-go mod tidy
-go build -o /usr/local/bin/orxtunnel-bot cmd/orxtunnel/main.go
+export PATH=$PATH:/usr/local/go/bin
+go build -o /usr/local/bin/depwise-bot ./cmd/orxtunnel
+
+mkdir -p /opt/depwise_bot
+cat > /opt/depwise_bot/.env <<EOF
+BOT_TOKEN=your_bot_token_here
+SUPER_ADMIN=your_telegram_id_here
+EOF
+chmod 600 /opt/depwise_bot/.env
+
+# Create systemd service
+cat > /etc/systemd/system/depwise.service <<EOF
+[Unit]
+Description=Depwise Telegram Bot (Go Edition)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+EnvironmentFile=/opt/depwise_bot/.env
+Environment="GOMEMLIMIT=40MiB" "GOGC=20"
+ExecStart=/usr/local/bin/depwise-bot
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable depwise
+systemctl start depwise
 ```
 
 ---
 
 ## 🔄 Updating
 
-Re-run the installer and pick option **1**. Your database and configuration are preserved.
-
 ```bash
-bash /etc/orx-tunnel/tools/orxtunnel.sh
+cd /root/depwise && git pull
+export PATH=$PATH:/usr/local/go/bin
+go build -o /usr/local/bin/depwise-bot ./cmd/orxtunnel
+systemctl restart depwise
 ```
 
-The bot can also update itself from **⚙️ Pro Settings → 🔄 Update System**, which pulls this
-repository, rebuilds, and restarts `orxtunnel.service`.
+Or use the in-bot updater: **⚙️ Pro Settings → 🔄 Update System**
 
 ---
 
-## 🧩 Service layout
+## 🧩 Service Layout
 
 | Item | Path |
 | :--- | :--- |
-| Binary | `/usr/local/bin/orxtunnel-bot` |
-| Service | `orxtunnel.service` |
-| Config / database | `/opt/orxtunnel_bot/` |
-| SSH banners | `/etc/ssh_banners/` |
-| Dropbear banner | `/etc/orxtunnel-banner.txt` |
+| Binary | `/usr/local/bin/depwise-bot` |
+| Service | `depwise.service` |
+| Config / Database | `/opt/depwise_bot/` |
+| SSH Banners | `/etc/ssh_banners/` |
+| Dropbear Banner | `/etc/orxtunnel-banner.txt` |
 
 ---
 
 ## ✨ Features
 
-### 🛠️ Protocol management (all-in-one)
-- **Advanced DNS multiplexing:** using `dnsdist` plus kernel-level `U32` (Netfilter) filters, the bot
-  runs **SlowDNS, VayDNS and Slipstream** concurrently on the same UDP port 53 without conflicts.
-  Native support for mobile networks (IPv6 / NAT64).
-- **SlowDNS / Noiz DNS:** highly stable, block-resistant DNS tunnels.
-- **Slipstream:** advanced hybrid protocol with a native QUIC path on port 443.
-- **SSH / Dropbear / WS TLS HTTP:** full account management with connection limits and HTML banners
-  generated on the fly.
-- **Xray (VMess):** VMess over WebSocket, compatible with Cloudflare and HAProxy.
-- **ZiVPN & UDP Custom:** UDP gaming protocols and robust bypass (range `6000:19999`).
-- **Falcon Proxy & ProxyDT:** optimized HTTP proxies.
+### 🛠️ Protocol Management (All-in-One)
+- **Xray (VMess / VLESS / Trojan):** Over WebSocket with HAProxy TLS termination on port 443
+- **SSH / Dropbear / WebSocket:** Full account management with connection limits, HTML banners
+- **SSH WebSocket SSL/Non-SSL:** HAProxy on 80/443/8080 → internal WS proxy (10015) → SSH:22
+- **Advanced DNS Multiplexing:** `dnsdist` + kernel `U32` filters run **SlowDNS, VayDNS, Slipstream** concurrently on UDP 53
+- **ZiVPN & UDP Custom:** UDP gaming protocols (ports 6000-19999)
+- **Falcon Proxy & ProxyDT:** Optimized HTTP proxies
 
 ### 🛡️ Administration
-- **Root SSH auto-configuration:** permanently enables root SSH access on cloud VPS images.
-- **Reboot resilience:** rebuilds networking, iptables, u32 rules, IPv6 and dnsdist on every boot so
-  no protocol silently dies.
-- **Broadcast:** send announcements to every registered user.
-- **Live monitoring:** VPS metrics (cores, RAM, disk, uptime) and active protocols.
-- **Bans and quotas:** per-role limits on account count, duration and devices.
-- **Expiry alerts:** admins are notified 1 day and 1 hour before an SSH, ZiVPN or Xray account expires.
+- **Root SSH auto-configuration** on cloud VPS images
+- **Reboot resilience:** rebuilds networking, iptables, u32 rules, IPv6, dnsdist on every boot
+- **Broadcast:** send announcements to all registered users
+- **Live monitoring:** VPS metrics (cores, RAM, disk, uptime) + active protocols
+- **Bans and quotas:** per-role limits on accounts, duration, devices
+- **Expiry alerts:** admins notified 1 day and 1 hour before account expiry
 
 ### 🧹 Maintenance
-- **Durable state:** traffic counters and settings survive reboots.
-- **Service self-healing:** automatic recovery of HAProxy, Xray and DNS.
-- **HAProxy auto-recovery:** verifies HAProxy is running, kills port squatters, restarts when needed.
+- **Durable state:** traffic counters and settings survive reboots
+- **Service self-healing:** auto-recovery of HAProxy, Xray, DNS
+- **HAProxy auto-recovery:** verifies running, kills port squatters, restarts when needed
 
 ---
 
@@ -119,62 +150,56 @@ wizard inside the bot.
 ### Step-by-step
 
 **1. Create a Monetag account**
-- Register as a publisher at [Monetag.com](https://monetag.com).
-- Add a new application and select the **Telegram Mini App** format.
-- Provide your bot username (e.g. `@orxtunnel_bot`).
-- Create a **Rewarded Interstitial** ad block.
+- Register as a publisher at [Monetag.com](https://monetag.com)
+- Add a new application → select **Telegram Mini App** format
+- Provide your bot username (e.g. `@orxtunnel_bot`)
+- Create a **Rewarded Interstitial** ad block
 
 **2. Collect the two code snippets**
-- **SDK script:** a `<script>` tag, e.g.
-  `<script src='//libtl.com/sdk.js' data-zone='1234567' data-sdk='show_1234567'></script>`
-- **Rewarded block:** a JavaScript block, e.g. `show_1234567().then(() => { ... })`
+- **SDK script:** `<script>` tag
+- **Rewarded block:** JavaScript function
 
 **3. Run the in-bot wizard**
-- Open **⚙️ Pro Settings → ⚙️ Configure MiniApp Ads**.
-- Paste the `<script>` tag when asked.
-- Paste the **Rewarded** block when asked.
-- The bot builds the HTML for you and returns a `monetag_miniapp.zip`. Download it, extract it, and
-  use the `.html` file inside.
+- Open **⚙️ Pro Settings → ⚙️ Configure MiniApp Ads**
+- Paste the SDK script and Rewarded block
+- Bot builds `monetag_miniapp.zip` — download, extract, use the `.html`
 
 **4. Host the Mini App**
-- Deploy the extracted `monetag_miniapp.html` to [Vercel](https://vercel.com/),
-  [GitHub Pages](https://pages.github.com/) or any static host.
-- Copy the public direct link to the HTML file
-  (e.g. `https://my-miniapp.vercel.app/monetag_miniapp.html`).
+- Deploy to [Vercel](https://vercel.com/), [GitHub Pages](https://pages.github.com/), or any static host
+- Copy the direct link to the HTML file
 
 **5. Activate**
-- Send that link to the bot as the final wizard step. The ad wall is enabled automatically.
+- Send that link to the bot as the final wizard step. Ad wall enabled automatically.
 
 ---
 
-## ☁️ Native backups (Telegram)
+## ☁️ Native Backups (Telegram)
 
-Backups are delivered straight to the admin chat — **on demand** from the panel, or **automatically**
-every 1, 3, 7 or 30 days. No external service required. Restoring is done by sending the `.json`
+Backups delivered to admin chat — **on demand** from the menu, or **automatically**
+every 1, 3, 7, or 30 days. No external service required. Restore by sending the `.json`
 backup file back to the bot.
 
 ---
 
 ## 🛠️ Troubleshooting
 
-| Symptom | Likely cause | Fix |
+| Symptom | Likely Cause | Fix |
 | :--- | :--- | :--- |
-| **No connection on mobile data** | NS domain has no IP, or IPv6 is failing | Reinstall the protocols from the Protocols menu |
-| **Bot not responding** | Process hung | `systemctl restart orxtunnel` |
-| **Xray / VMess not connecting** | HAProxy or Xray did not start | `systemctl status haproxy xray` |
-| **Automatic backup failing** | Invalid chat ID | Reconfigure the backup interval in the menu |
-| **`Exec format error`** | Binary built for the wrong CPU architecture | Reinstall; the installer selects the correct `amd64` / `arm64` build |
+| No connection on mobile data | NS domain has no IP, or IPv6 failing | Reinstall protocols from Protocols menu |
+| Bot not responding | Process hung | `systemctl restart depwise` |
+| Xray / VMess not connecting | HAProxy or Xray not started | `systemctl status haproxy xray` |
+| Automatic backup failing | Invalid chat ID | Reconfigure backup interval in menu |
+| `Exec format error` | Binary built for wrong CPU arch | Reinstall; installer selects correct `amd64` / `arm64` |
 
 Useful commands:
-
 ```bash
-systemctl status orxtunnel      # service state
-journalctl -u orxtunnel -f      # live logs
+systemctl status depwise         # service state
+journalctl -u depwise -f         # live logs
 ```
 
 ---
 
-## 💎 Credits and support
+## 💎 Credits and Support
 
 - **📢 Channel:** [@orxtunnel](https://t.me/orxtunnel)
 - **🤖 Bot:** [@orxtunnel_bot](https://t.me/orxtunnel_bot)
