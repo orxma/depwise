@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"html"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -197,8 +198,10 @@ func finishXrayCreation(c tele.Context, b *tele.Bot, chatID int64, lastMsg *tele
 	SafeEdit(chatID, b, lastMsg, i18n.T(chatID, "xray.generating"), nil)
 
 	protocol := GetTempValue(chatID, "xray_protocol")
+	log.Printf("[DEBUG] finishXrayCreation: chatID=%d, protocol from temp=%s", chatID, protocol)
 	if protocol == "" {
 		protocol = vpn.ProtoVMess
+		log.Printf("[DEBUG] finishXrayCreation: protocol empty, defaulting to VMess")
 	}
 	credential := vpn.GenCredential(protocol)
 	expireDate := time.Now().AddDate(0, 0, days).Format("2006-01-02")
@@ -311,6 +314,7 @@ func handleXrayProtoSelect(c tele.Context, b *tele.Bot, protocol string) error {
 	_ = c.Respond(&tele.CallbackResponse{})
 
 	proto := strings.TrimPrefix(protocol, "xray_proto_")
+	log.Printf("[DEBUG] handleXrayProtoSelect: chatID=%d, protocol=%s, proto=%s", chatID, protocol, proto)
 	SetTempValue(chatID, "xray_protocol", proto)
 
 	alias := GetTempValue(chatID, "xray_alias")
@@ -319,6 +323,7 @@ func handleXrayProtoSelect(c tele.Context, b *tele.Bot, protocol string) error {
 	}
 
 	if isFullAdmin(chatID) {
+		log.Printf("[DEBUG] handleXrayProtoSelect: isFullAdmin=true, setting step to awaiting_xray_days")
 		SetUserStep(chatID, "awaiting_xray_days")
 		lastMsg := GetLastBotMsg(chatID)
 		markup := &tele.ReplyMarkup{}
