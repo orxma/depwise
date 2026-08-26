@@ -1,6 +1,6 @@
 module github.com/orxma/depwise
 
-go 1.25.0
+go 1.22
 
 require gopkg.in/telebot.v3 v3.2.1
 
