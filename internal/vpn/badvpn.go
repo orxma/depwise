@@ -143,6 +143,25 @@ func mustReadFile(path string) []byte {
 	return data
 }
 
+func installBadVPNFallback() error {
+	_ = exec.Command("apt-get", "update").Run()
+
+	for _, pkg := range []string{"badvpn", "badvpn-udpgw"} {
+		if err := exec.Command("apt-get", "install", "-y", pkg).Run(); err == nil {
+			if _, err := os.Stat(badvpnBin); err == nil {
+				return nil
+			}
+			if _, err := os.Stat("/usr/bin/badvpn-udpgw"); err == nil {
+				if linkErr := os.Symlink("/usr/bin/badvpn-udpgw", badvpnBin); linkErr == nil {
+					return nil
+				}
+			}
+		}
+	}
+
+	return fmt.Errorf("failed to install badvpn via fallback")
+}
+
 // RemoveBadVPN detiene y elimina todos los servicios badvpn
 func RemoveBadVPN() error {
 	// Servicio único (custom binary)

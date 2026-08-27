@@ -15,19 +15,30 @@ echo "  Depwise / ORX TUNNEL Bot Installer"
 echo "=========================================="
 echo
 
-read -p "Enter Bot Token: " BOT_TOKEN
+if [[ -n "$1" ]]; then
+    BOT_TOKEN="$1"
+else
+    read -p "Enter Bot Token: " BOT_TOKEN
+fi
+
 if [[ -z "$BOT_TOKEN" ]]; then
     log_error "Bot token is required"
     exit 1
 fi
 
-read -p "Enter Super Admin ID (Telegram numeric ID): " SUPER_ADMIN
+if [[ -n "$2" ]]; then
+    SUPER_ADMIN="$2"
+else
+    read -p "Enter Super Admin ID (Telegram numeric ID): " SUPER_ADMIN
+fi
+
 if [[ -z "$SUPER_ADMIN" ]] || ! [[ "$SUPER_ADMIN" =~ ^[0-9]+$ ]]; then
     log_error "Valid numeric Super Admin ID is required"
     exit 1
 fi
 
 log_info "Updating system..."
+export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq git curl golang-go 2>/dev/null || {
     log_info "Installing Go manually..."
@@ -41,9 +52,9 @@ apt-get install -y -qq git curl golang-go 2>/dev/null || {
         log_error "Unsupported architecture: $ARCH"
         exit 1
     fi
+    rm -rf /usr/local/go
     curl -L -s "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" | tar -xz -C /usr/local
-    export PATH=$PATH:/usr/local/go/bin
-    echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
+    echo 'export PATH=$PATH:/usr/local/go/bin' > /etc/profile.d/go.sh
 }
 
 export PATH=$PATH:/usr/local/go/bin
@@ -51,15 +62,23 @@ export PATH=$PATH:/usr/local/go/bin
 log_info "Cloning repository..."
 cd /root
 if [[ -d "depwise" ]]; then
-    log_warn "Directory exists, pulling latest..."
-    cd depwise && git pull
+    if [[ -d "depwise/.git" ]]; then
+        log_warn "Directory exists, pulling latest..."
+        cd depwise && git pull
+    else
+        log_error "Directory 'depwise' exists but is not a git repository"
+        exit 1
+    fi
 else
     git clone https://github.com/orxma/depwise.git
     cd depwise
 fi
 
 log_info "Building bot..."
-go build -o /usr/local/bin/depwise-bot ./cmd/orxtunnel
+if ! go build -o /usr/local/bin/depwise-bot ./cmd/orxtunnel; then
+    log_error "Go build failed"
+    exit 1
+fi
 
 log_info "Creating config directory..."
 mkdir -p /opt/depwise_bot
