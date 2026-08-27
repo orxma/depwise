@@ -34,14 +34,14 @@ The bot interface is **100% English**.
 ### Option 1: Automated Install (Recommended)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/orxma/depwise/main/install_depwise.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/orxma/depwise/main/setup.sh | sudo bash
 ```
 
 Or download and run manually:
 ```bash
-wget https://raw.githubusercontent.com/orxma/depwise/main/install_depwise.sh
-chmod +x install_depwise.sh
-sudo ./install_depwise.sh
+wget https://raw.githubusercontent.com/orxma/depwise/main/setup.sh
+chmod +x setup.sh
+sudo ./setup.sh
 ```
 
 The script will prompt for:
