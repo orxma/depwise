@@ -20,7 +20,7 @@ const badvpnBin = "/usr/bin/badvpn"
 func InstallBadVPN(port string) error {
 	// 1. Dependencias de compilación
 	_ = exec.Command("apt-get", "update").Run()
-	_ = exec.Command("apt-get", "install", "-y", "build-essential", "cmake", "git", "gcc", "g++").Run()
+	_ = exec.Command("apt-get", "install", "-y", "build-essential", "cmake", "git", "gcc", "g++", "libnspr4-dev", "libnss3-dev", "pkg-config").Run()
 
 	// 2. Compilar badvpn desde fuente
 	if _, err := os.Stat(badvpnBin); os.IsNotExist(err) {
