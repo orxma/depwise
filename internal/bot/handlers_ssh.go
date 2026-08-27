@@ -518,9 +518,15 @@ func finishSSHCreation(c tele.Context, b *tele.Bot, chatID int64, lastMsg *tele.
 
 	if dataFinal.SSLTunnel != "" {
 		res += i18n.T(chatID, "ssh.ws_tls_section")
-		res += i18n.Tf(chatID, "ssh.ws_line", ip)
-		res += i18n.Tf(chatID, "ssh.wss_line", ip)
-		res += i18n.Tf(chatID, "ssh.ws_cdn_line", ip)
+		if dataFinal.CloudflareDomain != "" {
+			res += i18n.Tf(chatID, "ssh.ws_line", dataFinal.CloudflareDomain)
+			res += i18n.Tf(chatID, "ssh.wss_line", dataFinal.CloudflareDomain)
+			res += i18n.Tf(chatID, "ssh.ws_cdn_line", dataFinal.CloudflareDomain)
+		} else {
+			res += i18n.Tf(chatID, "ssh.ws_line", ip)
+			res += i18n.Tf(chatID, "ssh.wss_line", ip)
+			res += i18n.Tf(chatID, "ssh.ws_cdn_line", ip)
+		}
 		res += "\n"
 	}
 	res += "━━━━━━━━━━━━━━\n"

@@ -147,7 +147,7 @@ backend ssh_backend
 
 // InstallSSLTunnel instala HAProxy con configuración multi-protocolo.
 // IMPORTANTE: Requiere que SSH WebSocket esté instalado en puerto 10015 primero.
-func InstallSSLTunnel(port string) error {
+func InstallSSLTunnel(port, domain string) error {
 	// 1. Instalar HAProxy
 	exec.Command("apt-get", "update").Run()
 	if err := exec.Command("apt-get", "install", "-y", "haproxy").Run(); err != nil {
@@ -160,14 +160,29 @@ func InstallSSLTunnel(port string) error {
 	certFile := "/etc/haproxy/yha.pem"
 	configFile := "/etc/haproxy/haproxy.cfg"
 
-	// 3. Generar Certificado PEM si no existe
+	certCN := "ssl-tunnel"
+	if domain != "" {
+		certCN = domain
+	}
+
+	// 3. Generar Certificado PEM si no existe o el dominio cambió
+	needCert := false
 	if _, err := os.Stat(certFile); os.IsNotExist(err) {
-		cmdCert := exec.Command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "3650",
-			"-keyout", "/tmp/haproxy_key.pem", "-out", "/tmp/haproxy_cert.pem",
-			"-subj", "/CN=ssl-tunnel")
-		if err := cmdCert.Run(); err != nil {
-			return fmt.Errorf("failed to generate certificate: %v", err)
+		needCert = true
+	} else {
+		if raw, err := os.ReadFile(certFile); err == nil {
+			if !strings.Contains(string(raw), certCN) {
+				needCert = true
+			}
 		}
+	}
+
+	if needCert {
+		_ = os.Remove(certFile)
+		_ = exec.Command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "3650",
+			"-keyout", "/tmp/haproxy_key.pem", "-out", "/tmp/haproxy_cert.pem",
+			"-subj", "/CN="+certCN,
+			"-addext", "subjectAltName=DNS:"+certCN).Run()
 		exec.Command("bash", "-c", "cat /tmp/haproxy_key.pem /tmp/haproxy_cert.pem > "+certFile).Run()
 		os.Remove("/tmp/haproxy_key.pem")
 		os.Remove("/tmp/haproxy_cert.pem")
@@ -408,6 +423,37 @@ backend trojan_backend
 	if err := os.WriteFile(configFile, []byte(cfg), 0644); err != nil {
 		return err
 	}
+	exec.Command("systemctl", "restart", "haproxy").Run()
+	return nil
+}
+
+// UpdateHAProxyCert actualiza el certificado de HAProxy segun el dominio actual
+func UpdateHAProxyCert(domain string) error {
+	certFile := "/etc/haproxy/yha.pem"
+	if _, err := os.Stat(certFile); os.IsNotExist(err) {
+		return nil
+	}
+
+	certCN := domain
+	if certCN == "" {
+		certCN = "ssl-tunnel"
+	}
+
+	if raw, err := os.ReadFile(certFile); err == nil {
+		if strings.Contains(string(raw), certCN) {
+			return nil
+		}
+	}
+
+	_ = os.Remove(certFile)
+	_ = exec.Command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "3650",
+		"-keyout", "/tmp/haproxy_key.pem", "-out", "/tmp/haproxy_cert.pem",
+		"-subj", "/CN="+certCN,
+		"-addext", "subjectAltName=DNS:"+certCN).Run()
+	exec.Command("bash", "-c", "cat /tmp/haproxy_key.pem /tmp/haproxy_cert.pem > "+certFile).Run()
+	os.Remove("/tmp/haproxy_key.pem")
+	os.Remove("/tmp/haproxy_cert.pem")
+
 	exec.Command("systemctl", "restart", "haproxy").Run()
 	return nil
 }

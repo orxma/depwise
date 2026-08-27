@@ -37,6 +37,12 @@ if [[ -z "$SUPER_ADMIN" ]] || ! [[ "$SUPER_ADMIN" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
+if [[ -n "$3" ]]; then
+    CLOUDFLARE_DOMAIN="$3"
+else
+    read -p "Enter Cloudflare Domain (optional, press Enter to skip): " CLOUDFLARE_DOMAIN
+fi
+
 log_info "Updating system..."
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -111,6 +117,24 @@ log_info "Starting bot..."
 systemctl daemon-reload
 systemctl enable depwise
 systemctl restart depwise
+
+sleep 3
+
+if [[ -n "$CLOUDFLARE_DOMAIN" ]]; then
+    DB_DIR="/opt/orxtunnel_bot"
+    DB_FILE="$DB_DIR/bot_data.json"
+    if [[ -f "$DB_FILE" ]]; then
+        if command -v jq &>/dev/null; then
+            tmpfile=$(mktemp)
+            jq --arg domain "$CLOUDFLARE_DOMAIN" '.cloudflare_domain = $domain' "$DB_FILE" > "$tmpfile" && mv "$tmpfile" "$DB_FILE"
+            log_info "Cloudflare domain set to: $CLOUDFLARE_DOMAIN"
+        else
+            log_warn "jq not found, skipping domain setup. Set it manually via bot menu."
+        fi
+    else
+        log_warn "bot_data.json not found at $DB_FILE, skipping domain setup."
+    fi
+fi
 
 sleep 3
 

@@ -432,7 +432,7 @@ func handleInstallSSL(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error 
 
 	b.Edit(lastMsg, "⏳ <b>Installing multi-protocol HAProxy...</b>\n\n<i>Configuring ports 443, 80, 8080 plus the internal SSH WebSocket proxy (10015).\nThis supports gaming, VoIP and streaming.\nPlease wait...</i>", tele.ModeHTML)
 
-	err := vpn.InstallSSLTunnel("443")
+	err := vpn.InstallSSLTunnel("443", data.CloudflareDomain)
 	markup := &tele.ReplyMarkup{}
 	markup.Inline(markup.Row(markup.Data("🔙 Back", "menu_protocols")))
 
@@ -447,6 +447,9 @@ func handleInstallSSL(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error 
 	res += "🔒 <b>HTTPS/WSS:</b> <code>" + ip + ":443</code>\n"
 	res += "🔓 <b>HTTP/WS:</b>  <code>" + ip + ":80</code>\n"
 	res += "🔓 <b>Alt:</b>      <code>" + ip + ":8080</code>\n"
+	if data.CloudflareDomain != "" {
+		res += "☁️ <b>Domain:</b> <code>" + data.CloudflareDomain + "</code>\n"
+	}
 	res += "━━━━━━━━━━━━━━\n"
 	res += "🎮 <b>For Gaming (optional):</b> install BadVPN (UDPGW 7300) to tunnel UDP game traffic through HAProxy.\n"
 	res += "<i>Base traffic: App → HAProxy(443) → SSH-WS(10015) → SSH → Internet</i>"
@@ -485,7 +488,8 @@ func handleInstallXray(c tele.Context, b *tele.Bot, lastMsg *tele.Message) error
 			markup.Row(markup.Data("⚙️ Pro Settings", "menu_admins")),
 			markup.Row(markup.Data("🔙 Back", "submenu_xray")),
 		)
-		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>Xray</b> without first configuring a <b>Cloudflare Domain</b> in <i>Pro Settings</i> of the admin menu.\n\nThe Xray (VMess/VLESS/Trojan) protocols require a domain to generate connection links.", markup, tele.ModeHTML)
+		SetUserStep(chatID, "awaiting_vpn_cloudflare")
+		b.Edit(lastMsg, "⚠️ <b>Missing Requirement</b>\n\nYou cannot install <b>Xray</b> without first configuring a <b>Cloudflare Domain</b>.\n\n✏️ <i>Enter your Cloudflare domain now (e.g. my.host.com):</i>", markup, tele.ModeHTML)
 		return nil
 	}
 
@@ -679,10 +683,15 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 	case "awaiting_vpn_cloudflare":
 		domain := text
 		DeleteUserStep(chatID)
+		currentData, _ := db.Load()
+		oldDomain := currentData.CloudflareDomain
 		db.Update(func(data *db.ConfigData) error {
 			data.CloudflareDomain = domain
 			return nil
 		})
+		if oldDomain != domain {
+			_ = vpn.UpdateHAProxyCert(domain)
+		}
 		b.Edit(lastMsg, fmt.Sprintf("✅ <b>Dominio Cloudflare actualizado:</b> <code>%s</code>", domain), markup, tele.ModeHTML)
 		return nil
 
@@ -1115,7 +1124,8 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		DeleteUserStep(chatID)
 
 		b.Edit(lastMsg, "⏳ <i>Configuring SSL Tunnel (HAProxy)...</i>", tele.ModeHTML)
-		err := vpn.InstallSSLTunnel(port)
+		data, _ := db.Load()
+		err := vpn.InstallSSLTunnel(port, data.CloudflareDomain)
 		if err != nil {
 			b.Edit(lastMsg, fmt.Sprintf("❌ <b>Error installing SSL Tunnel:</b>\n<pre>%v</pre>", err), markup, tele.ModeHTML)
 			return nil
@@ -1124,10 +1134,12 @@ func processVPNSteps(step string, text string, chatID int64, c tele.Context, b *
 		res := "✅ <b>SSL Tunnel Instalado</b>\n"
 		res += "━━━━━━━━━━━━━━\n"
 		res += fmt.Sprintf("📜 <b>SSL Port:</b> <code>%s</code>\n", port)
+		if data.CloudflareDomain != "" {
+			res += fmt.Sprintf("☁️ <b>Domain:</b> <code>%s</code>\n", data.CloudflareDomain)
+		}
 		res += "━━━━━━━━━━━━━━\n"
 
 		// Guardar estado
-		data, _ := db.Load()
 		data.SSLTunnel = port
 		db.Save(data)
 
