@@ -116,7 +116,7 @@ func compileBadVPN() error {
 		return fmt.Errorf("cmake failed: %v", err)
 	}
 
-	cmd = exec.Command("make", "-j$(nproc)", "badvpn-udpgw")
+	cmd = exec.Command("sh", "-c", "make -j$(nproc) badvpn-udpgw")
 	cmd.Dir = buildDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -159,7 +159,7 @@ func installBadVPNFallback() error {
 		}
 	}
 
-	return fmt.Errorf("failed to install badvpn via fallback")
+	return compileBadVPN()
 }
 
 // RemoveBadVPN detiene y elimina todos los servicios badvpn
